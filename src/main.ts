@@ -1,0 +1,1 @@
+let inventoryA = new Inventory();
