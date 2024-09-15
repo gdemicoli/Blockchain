@@ -1,20 +1,64 @@
 import * as crypto from 'crypto';
-class DigitalSignature {
-    constructor
+
+//when created: creates public and private keys which are permanent
+//Has a method to take a message and signs it
+
+export class DigitalSignature {
+    
+    // create member variables for keys
+    private privateKey!: string; 
+    private publicKey!: string;
+
+    constructor() {
+        this.generateKeyPair()
+    }
+ 
+    
+    // generates public and private keys for dsa
+    private generateKeyPair() {
+        const { publicKey, privateKey } = crypto.generateKeyPairSync('dsa', {
+            modulusLength: 2048,
+            divisorLength: 256,
+
+            // p, q & g are computed into a single number representing the public key
+            publicKeyEncoding: {
+                type: 'spki',
+                format: 'pem'
+            },
+
+            // private key is generated and protected by the passphrase
+            privateKeyEncoding: {
+                type: 'pkcs8',
+                format: 'pem',
+
+                //add passphrase if necesary
+                // cipher: 'aes-256-cbc',
+                // passphrase: passphrase
+            }
+        });
+
+        this.publicKey = publicKey;
+        this.privateKey = privateKey;
+    }
 
 
-// const { privateKey, publicKey } = crypto.generateKeyPairSync('dsa', {
-//     modulusLength: 2048, // Length of key in bits
-//     divisorLength: 256,   // Length of divisor (for DSA)
-// });
+    signMessage(message: string): string {
+        const sign = crypto.createSign('md5');
+        sign.update(message);
+        sign.end();
+        const signature = sign.sign({
+            key: this.privateKey
+        });
 
+        return signature.toString('base64');
+    }
 
-// const secret = 'abcdefg';
-// const hash = crypto.createHmac('sha256', secret)
-//                .update('I love cupcakes')
-//                .digest('hex');
-// console.log(hash);
-// // Prints:
-// //   c0fa1bc00531bd78ef38c628449c5102aeabd49b5dc3a2a516ea6ea959d6658e
+    verifyMessage(message: string, signature: string): boolean {
+        const verify = crypto.createVerify('md5');
+        verify.update(message);
+        verify.end();
+        return verify.verify(this.publicKey, signature, 'base64');
+    }
+
 
 }

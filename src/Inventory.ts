@@ -1,13 +1,12 @@
-function stringToHash(input: string) {
 
-}
+
 
 // Creates an inventory that holds the parameters (line of the ledger)
-class Inventory{
-    id: number;
-    quantity: number;
-    price: number;
-    location: string;
+export class Inventory{
+    private id: number;
+    private quantity: number;
+    private price: number;
+    private location: string;
     
 
     constructor (id: number, quantity: number, price: number, location: string){
@@ -37,5 +36,12 @@ class Inventory{
         return this.location
     }
 
+    getAll(): string {
+        // combine all to hashable string
+        let formattedId: string = this.id.toString().padStart(3, '0');
+
+        return formattedId + this.quantity + this.price + this.location
+
+    }
 
 }
