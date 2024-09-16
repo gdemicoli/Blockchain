@@ -41,9 +41,16 @@ export class DigitalSignature {
         this.privateKey = privateKey;
     }
 
+    public getPubliceKey(): string {
+        return this.publicKey
+    }
 
-    signMessage(message: string): string {
+     
+    public signMessage(message: string): string {
+        // hash as md5
         const sign = crypto.createSign('md5');
+
+        // sign message using private key
         sign.update(message);
         sign.end();
         const signature = sign.sign({
