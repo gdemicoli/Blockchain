@@ -3,15 +3,15 @@ import { Block } from './Block';
 
 class Blockchain {
 
-    chain: crypto.Hash[]
+    // chain: crypto.Hash[]
 
-    constructor() {
-        this.chain = []
-    }
+    // constructor() {
+    //     this.chain = []
+    // }
 
-    createGenesisBlock(): Block {
-        return new Block(0, "01/01/2024", "Genesis", hash)
-    }
+    // createGenesisBlock(): Block {
+    //     return new Block(0, "01/01/2024", "Genesis", hash)
+    // }
 
 
 

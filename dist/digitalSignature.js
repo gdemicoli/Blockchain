@@ -27,6 +27,7 @@ exports.DigitalSignature = void 0;
 const crypto = __importStar(require("crypto"));
 //when created: creates public and private keys which are permanent
 //Has a method to take a message and signs it
+// need to do the maths yourself
 class DigitalSignature {
     constructor() {
         this.generateKeyPair();
@@ -53,8 +54,13 @@ class DigitalSignature {
         this.publicKey = publicKey;
         this.privateKey = privateKey;
     }
+    getPublicKey() {
+        return this.publicKey;
+    }
     signMessage(message) {
+        // hash as md5
         const sign = crypto.createSign('md5');
+        // sign message using private key
         sign.update(message);
         sign.end();
         const signature = sign.sign({

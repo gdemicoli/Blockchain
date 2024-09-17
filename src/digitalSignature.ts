@@ -42,7 +42,7 @@ export class DigitalSignature {
         this.privateKey = privateKey;
     }
 
-    public getPubliceKey(): string {
+    public getPublicKey(): string {
         return this.publicKey
     }
 
