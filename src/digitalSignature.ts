@@ -2,6 +2,7 @@ import * as crypto from 'crypto';
 
 //when created: creates public and private keys which are permanent
 //Has a method to take a message and signs it
+// need to do the maths yourself
 
 export class DigitalSignature {
     

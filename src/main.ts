@@ -15,8 +15,9 @@ let inventoryA = new Inventory(4, 12, 400, 'A');
 let inventoryASignature = new DigitalSignature();
 let inventoryAPK = inventoryASignature.getPubliceKey();
 
-// 3. Create message to be signed by inventory
+// 3. Create message to be signed by inventory 
 let message: string = inventoryA.getAll()
+//!!Check if need to hash the message before signing!!
 
 // 4. Sign the message
 let signedMessage: string = inventoryASignature.signMessage(inventoryA.getAll());
