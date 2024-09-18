@@ -27,7 +27,7 @@ exports.Block = void 0;
 const crypto = __importStar(require("crypto"));
 // ledger that holds all records of 
 class Block {
-    constructor(index, time, data, previousHash) {
+    constructor(index, time, data, previousHash = '') {
         this.index = index;
         this.time = time;
         this.data = data;
@@ -38,7 +38,7 @@ class Block {
         //create a hash of the block
         let formattedIndex = this.index.toString();
         //TO-DO transform this.data from variable to string
-        return crypto.createHash('md5').update(formattedIndex + this.previousHash + this.time + this.data);
+        return crypto.createHash('md5').update(formattedIndex + this.previousHash + this.time + this.data).digest('hex').toString();
     }
 }
 exports.Block = Block;

@@ -1,14 +1,15 @@
 import * as crypto from 'crypto';
+import { Inventory } from './Inventory';
 
 // ledger that holds all records of 
 export class Block {
     index: number;
     time: string
     data: string;
-    previousHash: crypto.Hash;
-    hash: crypto.Hash;
+    previousHash: string;
+    hash: string;
 
-    constructor (index: number, time: string, data: string, previousHash: crypto.Hash){
+    constructor (index: number, time: string, data: string, previousHash: string = ''){
         this.index = index;
         this.time = time;
         this.data = data;
@@ -18,11 +19,10 @@ export class Block {
 
     }
 
-    createHash(): crypto.Hash {
-        //create a hash of the block
-        let formattedIndex = this.index.toString()
-        //TO-DO transform this.data from variable to string
-        return crypto.createHash('md5').update(formattedIndex + this.previousHash+ this.time + this.data)
+    createHash(): string {
+        //creates a hash of the block
+        let formattedIndex: string = this.index.toString()
+        return crypto.createHash('md5').update(formattedIndex + this.previousHash+ this.time + this.data).digest('hex').toString()
     }
 
 

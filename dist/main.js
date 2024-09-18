@@ -44,10 +44,12 @@ async function main() {
     let message = "hello";
     let signedMessage = inventoryBSignature.signMessage(message);
     let verifyMessage = inventoryBSignature.verifySignature(message, signedMessage, inventoryBPubK.e, inventoryBPubK.n);
+    console.log(verifyMessage);
     // console.log("message is correct: " + verifyMessage)
     let message2 = "Hello";
     let signedMessage2 = inventoryBSignature.signMessage(message2);
     let verifyMessage2 = inventoryBSignature.verifySignature(message2, signedMessage2, inventoryBPubK.e, inventoryBPubK.n);
+    console.log(verifyMessage2);
     // console.log("message is correct: " + verifyMessage2)
     // let message3: string = inventoryB.getAll()
     // let signedMessage3 = inventoryBSignature.signMessage(message3)

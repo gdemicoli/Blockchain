@@ -63,6 +63,7 @@ async function main() {
     let signedMessage = inventoryBSignature.signMessage(message)
 
     let verifyMessage: boolean = inventoryBSignature.verifySignature(message, signedMessage, inventoryBPubK.e, inventoryBPubK.n)
+    console.log(verifyMessage)
 
     // console.log("message is correct: " + verifyMessage)
 
@@ -70,6 +71,8 @@ async function main() {
     let signedMessage2 = inventoryBSignature.signMessage(message2)
 
     let verifyMessage2: boolean = inventoryBSignature.verifySignature(message2, signedMessage2, inventoryBPubK.e, inventoryBPubK.n)
+    console.log(verifyMessage2)
+
     // console.log("message is correct: " + verifyMessage2)
 
     // let message3: string = inventoryB.getAll()

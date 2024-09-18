@@ -66,25 +66,31 @@ class DigitalSignature2 {
         return this.gcdBigInt(b, a % b);
     }
     signMessage(message) {
+        //hashes message and transforms it into a big int
         let messageBigInt = this.stringToMD5BigInt(message);
-        // console.log("hash to big int " + "of message: " + message + " is: " + messageBigInt)
+        //returns the signed message
         return (0, bigint_crypto_utils_1.modPow)(messageBigInt, this.privateKey.d, this.privateKey.n);
     }
     stringToMD5BigInt(message) {
-        // Step 1: Generate MD5 hash
+        // generates MD5 hash
         let hash = crypto.createHash('md5').update(message).digest('hex');
-        // Step 2: Convert the MD5 hash (hex string) to BigInt
+        // converts the MD5 hash to BigInt
         let hashBigInt = BigInt('0x' + hash);
         return hashBigInt;
     }
     verifySignature(message, signature, eValue, nValue) {
+        //performs decryption calculation
         let decryptedMessageBigInt = (0, bigint_crypto_utils_1.modPow)(signature, eValue, nValue);
-        let decryptedMessageString = decryptedMessageBigInt.toString();
-        // let decryptedMessage = crypto.createHash('md5').update(decryptedMessageString).digest('hex');
-        console.log("Decrypted message is: " + decryptedMessageString);
+        // prior to signing we hash the message and change it to a big int
+        // so here we need to do that to the message for comparison
+        // so that they are in the same form
         let hashBigIntMessage = this.stringToMD5BigInt(message);
-        console.log("hash big into of message is: " + hashBigIntMessage);
-        return true;
+        if (decryptedMessageBigInt === hashBigIntMessage) {
+            return true;
+        }
+        else {
+            return false;
+        }
     }
     // getter methods:
     getPublicKey() {
@@ -98,9 +104,6 @@ class DigitalSignature2 {
     }
     getQ() {
         return this.q;
-    }
-    getNumericalMessage() {
-        return this.messageBigInt;
     }
 }
 exports.DigitalSignature2 = DigitalSignature2;

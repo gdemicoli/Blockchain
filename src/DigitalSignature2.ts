@@ -90,9 +90,8 @@ export class DigitalSignature2 {
     public verifySignature(message: string, signature: bigint, eValue: bigint, nValue: bigint): boolean {
         //performs decryption calculation
         let decryptedMessageBigInt = modPow(signature, eValue, nValue);
-        let decryptedMessageString = decryptedMessageBigInt.toString();
         
-        console.log("Decrypted message is: " + decryptedMessageString);
+        
 
         // prior to signing we hash the message and change it to a big int
         // so here we need to do that to the message for comparison
@@ -100,8 +99,12 @@ export class DigitalSignature2 {
 
         let hashBigIntMessage = this.stringToMD5BigInt(message)
 
-        console.log("hash big into of message is: " + hashBigIntMessage)
-        return true
+        if (decryptedMessageBigInt === hashBigIntMessage){
+            return true;
+        }
+        else{
+            return false;
+        }
     }
     
 
