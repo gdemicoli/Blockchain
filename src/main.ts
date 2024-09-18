@@ -36,6 +36,9 @@ console.log(isLegit)
 //inventoryB
 
 async function main() {
+
+    let inventoryB = new Inventory(3, 22, 150, "B")
+
     // create a digital signature for the inventory
     let inventoryBSignature = new DigitalSignature2();
 
@@ -43,7 +46,7 @@ async function main() {
     await new Promise<void>((resolve) => {
         setTimeout(() => {
             resolve();
-        }, 2000); 
+        }, 4000); 
     });
 
     // retrieves and print the public key values
@@ -53,6 +56,28 @@ async function main() {
     // retrieves and print the private key values
     let inventoryBPrivK = inventoryBSignature.getPrivateKey();
     console.log("Private Key: d = " + inventoryBPrivK.d.toString() + ", n = " + inventoryBPrivK.n.toString());
+
+    // get message & signed message
+    
+    let message: string = "hello"
+    let signedMessage = inventoryBSignature.signMessage(message)
+
+    let verifyMessage: boolean = inventoryBSignature.verifySignature(message, signedMessage, inventoryBPubK.e, inventoryBPubK.n)
+
+    // console.log("message is correct: " + verifyMessage)
+
+    let message2: string = "Hello"
+    let signedMessage2 = inventoryBSignature.signMessage(message2)
+
+    let verifyMessage2: boolean = inventoryBSignature.verifySignature(message2, signedMessage2, inventoryBPubK.e, inventoryBPubK.n)
+    // console.log("message is correct: " + verifyMessage2)
+
+    // let message3: string = inventoryB.getAll()
+    // let signedMessage3 = inventoryBSignature.signMessage(message3)
+
+    // console.log("Original message " + message + ", numerical representaion:" + inventoryBSignature.getNumericalMessage() +
+    //  " \n signed message: " + signedMessage);
+
 
 }
 

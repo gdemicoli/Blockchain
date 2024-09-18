@@ -25,19 +25,34 @@ console.log(isLegit);
 //test for RSA 
 //inventoryB
 async function main() {
+    let inventoryB = new Inventory_1.Inventory(3, 22, 150, "B");
     // create a digital signature for the inventory
     let inventoryBSignature = new DigitalSignature2_1.DigitalSignature2();
     // waits for initialization to complete
     await new Promise((resolve) => {
         setTimeout(() => {
             resolve();
-        }, 2000);
+        }, 4000);
     });
     // retrieves and print the public key values
     let inventoryBPubK = inventoryBSignature.getPublicKey();
     console.log("Public Key: e = " + inventoryBPubK.e.toString() + ", n = " + inventoryBPubK.n.toString());
+    // retrieves and print the private key values
     let inventoryBPrivK = inventoryBSignature.getPrivateKey();
     console.log("Private Key: d = " + inventoryBPrivK.d.toString() + ", n = " + inventoryBPrivK.n.toString());
+    // get message & signed message
+    let message = "hello";
+    let signedMessage = inventoryBSignature.signMessage(message);
+    let verifyMessage = inventoryBSignature.verifySignature(message, signedMessage, inventoryBPubK.e, inventoryBPubK.n);
+    // console.log("message is correct: " + verifyMessage)
+    let message2 = "Hello";
+    let signedMessage2 = inventoryBSignature.signMessage(message2);
+    let verifyMessage2 = inventoryBSignature.verifySignature(message2, signedMessage2, inventoryBPubK.e, inventoryBPubK.n);
+    // console.log("message is correct: " + verifyMessage2)
+    // let message3: string = inventoryB.getAll()
+    // let signedMessage3 = inventoryBSignature.signMessage(message3)
+    // console.log("Original message " + message + ", numerical representaion:" + inventoryBSignature.getNumericalMessage() +
+    //  " \n signed message: " + signedMessage);
 }
 main().catch(err => console.error(err));
 //# sourceMappingURL=main.js.map

@@ -1,4 +1,5 @@
-import { prime, modInv, gcd } from 'bigint-crypto-utils';
+import { prime, modInv, gcd, modPow } from 'bigint-crypto-utils';
+import * as crypto from 'crypto';
 
 
 
@@ -13,6 +14,7 @@ export class DigitalSignature2 {
     private publicKey!: { e: bigint; n: bigint };
     private p!: bigint;
     private q!: bigint;
+
     
 
     constructor() {
@@ -56,6 +58,7 @@ export class DigitalSignature2 {
 
     }
 
+    //gcd calculator
     private static gcdBigInt(a: bigint, b: bigint): bigint {
         if (b === 0n) {
             return a;
@@ -63,6 +66,47 @@ export class DigitalSignature2 {
         return this.gcdBigInt(b, a % b);
     }
 
+    public signMessage(message: string): bigint {
+        //hashes message and transforms it into a big int
+        let messageBigInt = this.stringToMD5BigInt(message);
+
+        //returns the signed message
+        return modPow(messageBigInt, this.privateKey.d, this.privateKey.n);
+        
+    }
+
+    private stringToMD5BigInt(message: string): bigint {
+        // generates MD5 hash
+        let hash = crypto.createHash('md5').update(message).digest('hex');
+    
+        // converts the MD5 hash to BigInt
+        let hashBigInt = BigInt('0x' + hash);
+    
+        return hashBigInt;
+
+    }
+    
+    
+    public verifySignature(message: string, signature: bigint, eValue: bigint, nValue: bigint): boolean {
+        //performs decryption calculation
+        let decryptedMessageBigInt = modPow(signature, eValue, nValue);
+        let decryptedMessageString = decryptedMessageBigInt.toString();
+        
+        console.log("Decrypted message is: " + decryptedMessageString);
+
+        // prior to signing we hash the message and change it to a big int
+        // so here we need to do that to the message for comparison
+        // so that they are in the same form
+
+        let hashBigIntMessage = this.stringToMD5BigInt(message)
+
+        console.log("hash big into of message is: " + hashBigIntMessage)
+        return true
+    }
+    
+
+
+    // getter methods:
     public getPublicKey(): { e: bigint; n: bigint } {
         return this.publicKey;
     }
@@ -76,10 +120,7 @@ export class DigitalSignature2 {
     }
 
     public getQ(): bigint {
-        return this.q
+        return this.q;
     }
-
-
-  
 
 }
