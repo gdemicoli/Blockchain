@@ -2,6 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const Inventory_1 = require("./Inventory");
 const DigitalSignature2_1 = require("./DigitalSignature2");
+const Block_1 = require("./Block");
+const Blockchain_1 = require("./Blockchain");
 //test for RSA 
 //inventoryB
 async function main() {
@@ -14,6 +16,11 @@ async function main() {
     let inventoryBSignature = new DigitalSignature2_1.DigitalSignature2();
     let inventoryDSignature = new DigitalSignature2_1.DigitalSignature2();
     let inventoryCSignature = new DigitalSignature2_1.DigitalSignature2();
+    // create individual blockchain (ledger for all inventories)
+    let inventoryABlockchain = new Blockchain_1.Blockchain();
+    let inventoryBBlockchain = new Blockchain_1.Blockchain();
+    let inventoryCBlockchain = new Blockchain_1.Blockchain();
+    let inventoryDBlockchain = new Blockchain_1.Blockchain();
     // waits for initialization to complete
     await new Promise((resolve) => {
         setTimeout(() => {
@@ -25,8 +32,15 @@ async function main() {
     let inventoryDSignedMessage = inventoryDSignature.signMessage(inventoryDMessage);
     let inventoryDPubK = inventoryDSignature.getPublicKey();
     let inventoryCPubK = inventoryCSignature.getPublicKey();
-    let verifyMessage = inventoryBSignature.verifySignature(inventoryDMessage, inventoryDSignedMessage, inventoryCPubK.e, inventoryDPubK.n);
-    console.log(verifyMessage);
+    let verifyMessage = inventoryBSignature.verifySignature(inventoryDMessage, inventoryDSignedMessage, inventoryDPubK.e, inventoryDPubK.n);
+    if (verifyMessage) {
+        let currentDate = new Date();
+        let date = currentDate.toLocaleDateString('en-AU');
+        inventoryABlockchain.addBlock(new Block_1.Block(inventoryABlockchain.chain.length, date, inventoryDMessage));
+        inventoryBBlockchain.addBlock(new Block_1.Block(inventoryABlockchain.chain.length, date, inventoryDMessage));
+        inventoryCBlockchain.addBlock(new Block_1.Block(inventoryABlockchain.chain.length, date, inventoryDMessage));
+        inventoryDBlockchain.addBlock(new Block_1.Block(inventoryABlockchain.chain.length, date, inventoryDMessage));
+    }
 }
 main().catch(err => console.error(err));
 //# sourceMappingURL=main2.js.map

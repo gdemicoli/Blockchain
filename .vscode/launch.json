@@ -11,7 +11,7 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}/dist/Blockchain.js",
+            "program": "${workspaceFolder}/dist/main3.js",
             "outFiles": [
                 "${workspaceFolder}/**/*.js"
             ]

@@ -4,7 +4,7 @@ exports.Blockchain = void 0;
 const Block_1 = require("./Block");
 class Blockchain {
     constructor() {
-        this.difficulty = 7;
+        this.difficulty = 3;
         //builds genesis block on instantiation
         this.chain = [this.createGenesisBlock()];
     }
