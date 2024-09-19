@@ -37,7 +37,7 @@ function addToBlockChains(blockchains:Blockchain [], message: string) {
 }
 
 function consensusCheck(blockchains:Blockchain[]): boolean {
-    for(let i: number = 0; i > blockchains.length; i++ ){
+    for(let i: number = 0; i < blockchains.length; i++ ){
         if(blockchains[i].chain[blockchains[i].chain.length-1].nonce !==
              blockchains[0].chain[blockchains[0].chain.length-1].nonce){
                 return false
