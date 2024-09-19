@@ -8,6 +8,7 @@ import { DigitalSignature } from './DigitalSignature';
 import { DigitalSignature2 } from './DigitalSignature2';
 
 
+
 //inventoryA
 // 1. Create inventories with their data
 let inventoryA = new Inventory(4, 12, 400, 'A');

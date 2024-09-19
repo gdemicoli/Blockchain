@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Blockchain = void 0;
 const Block_1 = require("./Block");
-const Inventory_1 = require("./Inventory");
 class Blockchain {
     constructor() {
         this.difficulty = 7;
@@ -37,17 +37,18 @@ class Blockchain {
         return true;
     }
 }
+exports.Blockchain = Blockchain;
 let testChain = new Blockchain();
-console.log("Mining first block...");
-let inventoryD = new Inventory_1.Inventory(1, 32, 120, "D");
-testChain.addBlock(new Block_1.Block(1, "19/9/2024", inventoryD.getAll()));
-console.log("Mining second block...");
-let inventoryC = new Inventory_1.Inventory(2, 20, 230, "C");
-testChain.addBlock(new Block_1.Block(2, "19/9/2024", inventoryC.getAll()));
-console.log("Mining third block...");
-let inventoryB = new Inventory_1.Inventory(3, 22, 150, "B");
-testChain.addBlock(new Block_1.Block(3, "19/9/2024", inventoryB.getAll()));
-console.log(JSON.stringify(testChain, null, 4));
-// console.log(testChain.chain[testChain.chain.length-1].hash)
-console.log("Chain is valid: " + testChain.isChainValid());
+// console.log("Mining first block...")
+// let inventoryD = new Inventory(1, 32, 120, "D")
+// testChain.addBlock(new Block(1, "19/9/2024", inventoryD.getAll()))
+// console.log("Mining second block...")
+// let inventoryC = new Inventory(2, 20, 230, "C")
+// testChain.addBlock(new Block(2, "19/9/2024", inventoryC.getAll()))
+// console.log("Mining third block...")
+// let inventoryB = new Inventory(3, 22, 150, "B")
+// testChain.addBlock(new Block(3, "19/9/2024", inventoryB.getAll()))
+// console.log(JSON.stringify(testChain, null, 4));
+// // console.log(testChain.chain[testChain.chain.length-1].hash)
+// console.log("Chain is valid: " + testChain.isChainValid())
 //# sourceMappingURL=Blockchain.js.map

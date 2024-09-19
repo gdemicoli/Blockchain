@@ -17,7 +17,6 @@ export class Block {
         this.previousHash = previousHash;
         this.hash = this.createHash()
         
-//pQ&g
     }
 
     createHash(): string {
@@ -35,8 +34,6 @@ export class Block {
         }
 
         console.log("Block mined: " + this.hash);
-
-
     }
 
 

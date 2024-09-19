@@ -5,10 +5,10 @@ import { Inventory } from './Inventory';
 
 
 
-class Blockchain {
+export class Blockchain {
     //array of blocks 
     chain: Block[];
-    difficulty: number = 7;
+    difficulty: number = 3;
 
     constructor() {
         //builds genesis block on instantiation
@@ -55,7 +55,9 @@ class Blockchain {
     }
 }
 
-// let testChain = new Blockchain();
+let testChain = new Blockchain();
+
+
 // console.log("Mining first block...")
 // let inventoryD = new Inventory(1, 32, 120, "D")
 

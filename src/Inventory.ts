@@ -19,6 +19,8 @@ export class Inventory{
 
     
 
+    
+
     //Getters
     getId(): number {
         return this.id
@@ -44,6 +46,6 @@ export class Inventory{
 
     }
 
-    
+
 
 }
