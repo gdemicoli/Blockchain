@@ -28,6 +28,7 @@ const crypto = __importStar(require("crypto"));
 // ledger that holds all records of 
 class Block {
     constructor(index, time, data, previousHash = '') {
+        this.nonce = 0;
         this.index = index;
         this.time = time;
         this.data = data;
@@ -35,10 +36,16 @@ class Block {
         this.hash = this.createHash();
     }
     createHash() {
-        //create a hash of the block
+        //creates a hash of the block
         let formattedIndex = this.index.toString();
-        //TO-DO transform this.data from variable to string
-        return crypto.createHash('md5').update(formattedIndex + this.previousHash + this.time + this.data).digest('hex').toString();
+        return crypto.createHash('md5').update(formattedIndex + this.previousHash + this.time + this.data + this.nonce).digest('hex').toString();
+    }
+    mineBlock(numZeroes) {
+        while (this.hash.substring(0, numZeroes) !== Array(numZeroes + 1).join("0")) {
+            this.nonce++;
+            this.hash = this.createHash();
+        }
+        console.log("Block mined: " + this.hash);
     }
 }
 exports.Block = Block;

@@ -7,7 +7,8 @@ import { Inventory } from './Inventory';
 
 class Blockchain {
     //array of blocks 
-    chain: Block[]
+    chain: Block[];
+    difficulty: number = 7;
 
     constructor() {
         //builds genesis block on instantiation
@@ -29,7 +30,7 @@ class Blockchain {
         newBlock.previousHash = this.getLatestBlock().hash;
 
         //creates a hash of the new block and pushes it to the array
-        newBlock.hash = newBlock.createHash();
+        newBlock.mineBlock(this.difficulty);
         this.chain.push(newBlock);
 
     }
@@ -54,26 +55,27 @@ class Blockchain {
     }
 }
 
-let testChain = new Blockchain();
+// let testChain = new Blockchain();
+// console.log("Mining first block...")
+// let inventoryD = new Inventory(1, 32, 120, "D")
 
-let inventoryD = new Inventory(1, 32, 120, "D")
 
+// testChain.addBlock(new Block(1, "19/9/2024", inventoryD.getAll()))
+// console.log("Mining second block...")
+// let inventoryC = new Inventory(2, 20, 230, "C")
 
-testChain.addBlock(new Block(1, "19/9/2024", inventoryD.getAll()))
+// testChain.addBlock(new Block(2, "19/9/2024", inventoryC.getAll()))
+// console.log("Mining third block...")
 
-let inventoryC = new Inventory(2, 20, 230, "C")
+// let inventoryB = new Inventory(3, 22, 150, "B")
 
-testChain.addBlock(new Block(2, "19/9/2024", inventoryC.getAll()))
-
-let inventoryB = new Inventory(3, 22, 150, "B")
-
-testChain.addBlock(new Block(3, "19/9/2024", inventoryB.getAll()))
+// testChain.addBlock(new Block(3, "19/9/2024", inventoryB.getAll()))
 
 // console.log(JSON.stringify(testChain, null, 4));
 
-// console.log(testChain.chain[testChain.chain.length-1].hash)
+// // console.log(testChain.chain[testChain.chain.length-1].hash)
 
-console.log("Chain is valid: " + testChain.isChainValid())
+// console.log("Chain is valid: " + testChain.isChainValid())
 
 
 
