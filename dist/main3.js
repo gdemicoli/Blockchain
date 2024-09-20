@@ -39,22 +39,28 @@ function consensusCheck(blockchains) {
     return true;
 }
 async function main() {
-    // Initialize inventories, signatures, and blockchains
+    //initialize inventories, signatures, and blockchains
+    console.log("Script (main) is running");
     let inventories = [
         createInventoryWithSignature(4, 12, 400, "A"),
         createInventoryWithSignature(3, 22, 150, "B"),
         createInventoryWithSignature(2, 20, 230, "C"),
         createInventoryWithSignature(1, 32, 120, "D")
     ];
-    // Wait for initialization to complete
+    //html
+    const version1Div = document.getElementById("version1");
+    const inventoryHeader = document.createElement("h5");
+    inventoryHeader.textContent = "Inventories";
+    version1Div.appendChild(inventoryHeader);
+    // wait for initialization to complete
     await new Promise(resolve => setTimeout(resolve, 10000));
-    // Step 1: Inventory D signs the message
+    //1: Inventory D signs the message
     let inventoryD = inventories[3];
     let { message, signedMessage, publicKey } = signMessage(inventoryD.inventory, inventoryD.signature);
-    // Step 2: Other inventories verify the signed message
+    // 2: Other inventories verify the signed message
     let otherInventories = inventories.filter(inv => inv !== inventoryD);
     let isValid = verifyMessage(otherInventories, message, signedMessage, publicKey);
-    // Step 3: If valid, add block to all blockchains
+    // 3: If valid, add block to all blockchains
     if (isValid) {
         console.log("All inventories verify!");
         let blockchains = inventories.map(item => item.blockchain);
@@ -68,5 +74,6 @@ async function main() {
         }
     }
 }
+console.log("Script (main) is running");
 main().catch(err => console.error(err));
 //# sourceMappingURL=main3.js.map

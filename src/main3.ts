@@ -3,11 +3,19 @@ import { DigitalSignature2 } from './DigitalSignature2';
 import { Block } from './Block';
 import { Blockchain } from './Blockchain';
 
+
 //helper function to create an inventory and its signature
 function createInventoryWithSignature(id: number, quantity: number, price: number, name: string) {
+    
     const inventory = new Inventory(id, quantity, price, name);
     const signature = new DigitalSignature2();
     const blockchain = new Blockchain();
+
+    
+
+
+    
+
     return { inventory, signature, blockchain };
 }
 
@@ -49,7 +57,8 @@ function consensusCheck(blockchains:Blockchain[]): boolean {
 }
 
 async function main() {
-    // Initialize inventories, signatures, and blockchains
+    //initialize inventories, signatures, and blockchains
+    console.log("Script (main) is running");
     let inventories = [
         createInventoryWithSignature(4, 12, 400, "A"),
         createInventoryWithSignature(3, 22, 150, "B"),
@@ -57,20 +66,29 @@ async function main() {
         createInventoryWithSignature(1, 32, 120, "D")
     ];
 
-    // Wait for initialization to complete
+    //html
+    const version1Div = document.getElementById("version1")!;
+
+    const inventoryHeader = document.createElement("h5");
+    inventoryHeader.textContent = "Inventories";
+
+    version1Div.appendChild(inventoryHeader)
+    
+
+    // wait for initialization to complete
     await new Promise<void>(resolve => setTimeout(resolve, 10000));
 
-    // Step 1: Inventory D signs the message
+    //1: Inventory D signs the message
     let inventoryD = inventories[3];
     let { message, signedMessage, publicKey } = signMessage(inventoryD.inventory, inventoryD.signature);
 
-    // Step 2: Other inventories verify the signed message
+    // 2: Other inventories verify the signed message
     let otherInventories = inventories.filter(inv => inv !== inventoryD); 
     let isValid = verifyMessage(otherInventories, message, signedMessage, publicKey);
 
     
 
-    // Step 3: If valid, add block to all blockchains
+    // 3: If valid, add block to all blockchains
     if (isValid) {
 
         console.log("All inventories verify!")
@@ -93,4 +111,6 @@ async function main() {
     
 }
 
+
+console.log("Script (main) is running");
 main().catch(err => console.error(err));
