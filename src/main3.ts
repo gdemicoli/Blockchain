@@ -40,6 +40,7 @@ function addToBlockChains(blockchains:Blockchain [], message: string) {
     });
 }
 
+// Functino to check for consensus across block chains
 function consensusCheck(blockchains:Blockchain[]): boolean {
     for(let i: number = 0; i < blockchains.length; i++ ){
         if(blockchains[i].chain[blockchains[i].chain.length-1].nonce !==
@@ -51,6 +52,27 @@ function consensusCheck(blockchains:Blockchain[]): boolean {
     return true
 
 }
+
+// Helper function for initial inventories
+function signVerifyAndAddToChains(inventories: { inventory: Inventory; signature: DigitalSignature2; blockchain: Blockchain }[],
+     signee: { inventory: Inventory; signature: DigitalSignature2; blockchain: Blockchain }): boolean {
+    // 1: Inventory D signs the message
+    
+    let { message, signedMessage, publicKey } = signMessage(signee.inventory, signee.signature);
+
+    // 2: Other inventories verify the signed message
+    let otherInventories = inventories.filter(inv => inv !== signee); 
+    let isValid = verifyMessage(otherInventories, message, signedMessage, publicKey);
+
+    let blockchains = inventories.map(item => item.blockchain);
+    addToBlockChains(blockchains, message);
+
+
+    return isValid
+
+}
+
+
 
 async function main() {
 
@@ -132,42 +154,31 @@ async function main() {
 
     invContent.textContent = "";
 
+    const signAndVerify = document.createElement("h4")
 
+    signAndVerify.textContent = "Protocol:";
 
     
-
-
-
-
-
-    //1: Inventory D signs the message
-    let inventoryD = inventories[3];
-    let { message, signedMessage, publicKey } = signMessage(inventoryD.inventory, inventoryD.signature);
-
-    // 2: Other inventories verify the signed message
-    let otherInventories = inventories.filter(inv => inv !== inventoryD); 
-    let isValid = verifyMessage(otherInventories, message, signedMessage, publicKey);
-
     
 
     // 3: If valid, add block to all blockchains
-    if (isValid) {
+    for( let i = 0; i < inventories.length; i++) {
+        
+        if (signVerifyAndAddToChains(inventories, inventories[i])) {
 
-        console.log("All inventories verify!")
+            console.log("All inventories verify signature!")
 
-        let blockchains = inventories.map(item => item.blockchain);
-        addToBlockChains(blockchains, message);
-
-        blockchains[2].chain[blockchains[2].chain.length-1].nonce = 5
-
-        if (consensusCheck(blockchains)) {
-            console.log("Consensus reached!")
-    
-        }
-        else {
-            console.log("Consensus failed!")
+            let blockchains = inventories.map(item => item.blockchain);
+            if (consensusCheck(blockchains)) {
+                console.log("Consensus reached!")
+        
+            }
+            else {
+                console.log("Consensus failed!")
+            }
         }
     }
+    
 
     
     
