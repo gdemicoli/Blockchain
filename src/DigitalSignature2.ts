@@ -14,6 +14,7 @@ export class DigitalSignature2 {
     private publicKey!: { e: bigint; n: bigint };
     private p!: bigint;
     private q!: bigint;
+    public hash?: string
 
     
 
@@ -77,6 +78,7 @@ export class DigitalSignature2 {
 
     private stringToMD5BigInt(message: string): bigint {
         // generates MD5 hash
+        this.hash = crypto.createHash('md5').update(message).digest('hex');
         let hash = crypto.createHash('md5').update(message).digest('hex');
     
         // converts the MD5 hash to BigInt

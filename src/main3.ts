@@ -17,6 +17,8 @@ function createInventoryWithSignature(id: number, quantity: number, price: numbe
 
 //function to sign a message by the signing inventory
 function signMessage(inventory: Inventory, signingSignature: DigitalSignature2) {
+
+
     let message: string = inventory.getAll();
     let signedMessage = signingSignature.signMessage(message);
     let publicKey = signingSignature.getPublicKey();
@@ -57,16 +59,49 @@ function consensusCheck(blockchains:Blockchain[]): boolean {
 function signVerifyAndAddToChains(inventories: { inventory: Inventory; signature: DigitalSignature2; blockchain: Blockchain }[],
      signee: { inventory: Inventory; signature: DigitalSignature2; blockchain: Blockchain }): boolean {
     // 1: Inventory D signs the message
-    
     let { message, signedMessage, publicKey } = signMessage(signee.inventory, signee.signature);
+
+    let scenario = document.getElementById("scenario")
+    
+    let olScenario = document.createElement("ol");
+    let signingHTML = "Inventory " + signee.inventory.getLocation() + " concatenates their inventory information " + signee.inventory.getAll();
+    let signingHTML2 = "The messaged is hashed in md5: " + signee.signature.hash
+    let signingHTML3 = "Then the message is signed using m^d mod(n)"
+    let signingHTML4 = "The signed message is turned into a big int value (not a decimal conversion, but is a unique value and can be used for calculation)" + signedMessage
 
     // 2: Other inventories verify the signed message
     let otherInventories = inventories.filter(inv => inv !== signee); 
     let isValid = verifyMessage(otherInventories, message, signedMessage, publicKey);
 
+    let unsignHTML = "The other inventories each verify the message using s^e mod(n)"
+
     let blockchains = inventories.map(item => item.blockchain);
     addToBlockChains(blockchains, message);
 
+    let unsignHTML2 = "If the unsigned message matches the signed message they add it to their ledger"
+
+    let liScenario = document.createElement("ol");
+    let liScenario2 = document.createElement("ol");
+    let liScenario3 = document.createElement("ol");
+    let liScenario4 = document.createElement("ol");
+    let liScenario5 = document.createElement("ol");
+    let liScenario6 = document.createElement("ol");
+
+    liScenario.textContent = signingHTML
+    liScenario2.textContent = signingHTML2
+    liScenario3.textContent = signingHTML3
+    liScenario4.textContent = signingHTML4
+    liScenario5.textContent = unsignHTML
+    liScenario6.textContent = unsignHTML2
+
+    olScenario.appendChild(liScenario)
+    olScenario.appendChild(liScenario2)
+    olScenario.appendChild(liScenario3)
+    olScenario.appendChild(liScenario4)
+    olScenario.appendChild(liScenario5)
+    olScenario.appendChild(liScenario6)
+
+    scenario?.appendChild(olScenario)
 
     return isValid
 
@@ -141,14 +176,13 @@ async function main() {
         liKeyN2.textContent = document.textContent = invKeyN;
 
         
-
-
-      
         invList.appendChild(liDetails)
         invList.appendChild(liKeyN)
         invList.appendChild(liKeyE)
         invList.appendChild(liKeyD)
         invList.appendChild(liKeyN2)
+
+        
 
     }
 
@@ -156,7 +190,9 @@ async function main() {
 
     const signAndVerify = document.createElement("h4")
 
-    signAndVerify.textContent = "Protocol:";
+    // start adding in html for scenario
+    signAndVerify.textContent = "Example Scenario:";
+
 
     
     
