@@ -11,10 +11,6 @@ function createInventoryWithSignature(id: number, quantity: number, price: numbe
     const signature = new DigitalSignature2();
     const blockchain = new Blockchain();
 
-    
-
-
-    
 
     return { inventory, signature, blockchain };
 }
@@ -57,6 +53,23 @@ function consensusCheck(blockchains:Blockchain[]): boolean {
 }
 
 async function main() {
+
+    //html
+    const version1Div = document.getElementById("version1")!;
+
+    const inventoryHeader = document.createElement("h5");
+    inventoryHeader.textContent = "Inventories: ";
+
+    version1Div.appendChild(inventoryHeader)
+
+    const inventoryDiv = document.createElement("div")
+    version1Div.appendChild(inventoryDiv)
+    
+    const invContent = document.createElement("p");
+    invContent.textContent = "Inventory keys being generated, please wait..."
+
+    inventoryDiv.appendChild(invContent)
+
     //initialize inventories, signatures, and blockchains
     console.log("Script (main) is running");
     let inventories = [
@@ -66,17 +79,66 @@ async function main() {
         createInventoryWithSignature(1, 32, 120, "D")
     ];
 
-    //html
-    const version1Div = document.getElementById("version1")!;
-
-    const inventoryHeader = document.createElement("h5");
-    inventoryHeader.textContent = "Inventories: ";
-
-    version1Div.appendChild(inventoryHeader)
     
 
+    
     // wait for initialization to complete
-    await new Promise<void>(resolve => setTimeout(resolve, 10000));
+    await new Promise<void>(resolve => setTimeout(resolve, 5000));
+
+    for(let i: number =0; i < inventories.length; i++) {
+        let invList = document.createElement("ul")
+        invList.textContent = "Inventory " + inventories[i].inventory.getLocation()
+        inventoryDiv.appendChild(invList)
+
+        // HTML text format for output
+        let invDetails = "ID: " + inventories[i].inventory.getId() + " | Quantity: "+ inventories[i].inventory.getQuantity() +
+        " | Price: " + inventories[i].inventory.getPrice() + " | Location: " + inventories[i].inventory.getLocation();
+
+        // Public key values
+        let publicKeys = inventories[i].signature.getPublicKey();
+        let invKeyN = "Public Key n: " + publicKeys.n;
+        let invKeyE = "Public Key e: " + publicKeys.e
+
+        // Private Key values
+        let privateKeys = inventories[i].signature.getPrivateKey();
+        let invKeyD = "Private Key d: " + privateKeys.d;
+        let invKeyN2 = "Private Key n: " + privateKeys.n
+
+        // List item creation
+        let liDetails = document.createElement("li")
+        let liKeyN = document.createElement("li")
+        let liKeyE = document.createElement("li")
+        let liKeyD = document.createElement("li")
+        let liKeyN2 = document.createElement("li")
+        
+
+        liDetails.textContent = document.textContent = invDetails;
+        liKeyN.textContent = document.textContent = invKeyN;
+        liKeyE.textContent = document.textContent = invKeyE;
+        liKeyD.textContent = document.textContent = invKeyD;
+        liKeyN2.textContent = document.textContent = invKeyN;
+
+        
+
+
+      
+        invList.appendChild(liDetails)
+        invList.appendChild(liKeyN)
+        invList.appendChild(liKeyE)
+        invList.appendChild(liKeyD)
+        invList.appendChild(liKeyN2)
+
+    }
+
+    invContent.textContent = "";
+
+
+
+    
+
+
+
+
 
     //1: Inventory D signs the message
     let inventoryD = inventories[3];

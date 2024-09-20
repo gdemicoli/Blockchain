@@ -1,3 +1,3 @@
 # Blockchain
 
-To turn type npx webpack and hit enter, then go live
+To start type npx webpack and hit enter, then go live

@@ -1,8 +1,5 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.Inventory = void 0;
 // Creates an inventory that holds the parameters (line of the ledger)
-class Inventory {
+export class Inventory {
     constructor(id, quantity, price, location) {
         this.id = id;
         this.quantity = quantity;
@@ -28,5 +25,4 @@ class Inventory {
         return formattedId + this.quantity + this.price + this.location;
     }
 }
-exports.Inventory = Inventory;
 //# sourceMappingURL=Inventory.js.map

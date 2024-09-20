@@ -1,15 +1,12 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.Blockchain = void 0;
-const Block_1 = require("./Block");
-class Blockchain {
+import { Block } from './Block';
+export class Blockchain {
     constructor() {
         this.difficulty = 3;
         //builds genesis block on instantiation
         this.chain = [this.createGenesisBlock()];
     }
     createGenesisBlock() {
-        return new Block_1.Block(0, "01/01/2024", "Genesis");
+        return new Block(0, "01/01/2024", "Genesis");
     }
     getLatestBlock() {
         return this.chain[this.chain.length - 1];
@@ -37,7 +34,6 @@ class Blockchain {
         return true;
     }
 }
-exports.Blockchain = Blockchain;
 let testChain = new Blockchain();
 // console.log("Mining first block...")
 // let inventoryD = new Inventory(1, 32, 120, "D")

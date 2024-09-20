@@ -1,35 +1,9 @@
-"use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.DigitalSignature2 = void 0;
-const bigint_crypto_utils_1 = require("bigint-crypto-utils");
-const crypto = __importStar(require("crypto"));
+import { prime, modInv, gcd, modPow } from 'bigint-crypto-utils';
+import * as crypto from 'crypto';
 //when created: creates public and private keys which are permanent
 //Has a method to take a message and signs it
 //RSA implementation
-class DigitalSignature2 {
+export class DigitalSignature2 {
     constructor() {
         this.init();
     }
@@ -41,7 +15,7 @@ class DigitalSignature2 {
     }
     async generatePrime(bits) {
         // Generate a prime number with the specified number of bits
-        let primeNumber = await (0, bigint_crypto_utils_1.prime)(bits);
+        let primeNumber = await prime(bits);
         return primeNumber;
     }
     // generates public and private keys for rsa
@@ -52,9 +26,9 @@ class DigitalSignature2 {
         let e;
         do {
             e = await this.generatePrime(32);
-        } while ((0, bigint_crypto_utils_1.gcd)(e, phi) !== 1n);
+        } while (gcd(e, phi) !== 1n);
         //calculate inverse mod of e and phi 
-        const d = (0, bigint_crypto_utils_1.modInv)(e, phi);
+        const d = modInv(e, phi);
         this.publicKey = { e, n };
         this.privateKey = { d, n };
     }
@@ -69,7 +43,7 @@ class DigitalSignature2 {
         //hashes message and transforms it into a big int
         let messageBigInt = this.stringToMD5BigInt(message);
         //returns the signed message
-        return (0, bigint_crypto_utils_1.modPow)(messageBigInt, this.privateKey.d, this.privateKey.n);
+        return modPow(messageBigInt, this.privateKey.d, this.privateKey.n);
     }
     stringToMD5BigInt(message) {
         // generates MD5 hash
@@ -80,7 +54,7 @@ class DigitalSignature2 {
     }
     verifySignature(message, signature, eValue, nValue) {
         //performs decryption calculation
-        let decryptedMessageBigInt = (0, bigint_crypto_utils_1.modPow)(signature, eValue, nValue);
+        let decryptedMessageBigInt = modPow(signature, eValue, nValue);
         // prior to signing we hash the message and change it to a big int
         // so here we need to do that to the message for comparison
         // so that they are in the same form
@@ -106,5 +80,4 @@ class DigitalSignature2 {
         return this.q;
     }
 }
-exports.DigitalSignature2 = DigitalSignature2;
 //# sourceMappingURL=DigitalSignature2.js.map
