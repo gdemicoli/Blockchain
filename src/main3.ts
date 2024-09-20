@@ -70,7 +70,7 @@ async function main() {
     const version1Div = document.getElementById("version1")!;
 
     const inventoryHeader = document.createElement("h5");
-    inventoryHeader.textContent = "Inventories";
+    inventoryHeader.textContent = "Inventories: ";
 
     version1Div.appendChild(inventoryHeader)
     
