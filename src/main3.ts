@@ -85,7 +85,7 @@ function signVerifyAndAddToChains(inventories: { inventory: Inventory; signature
     // 1: Inventory D signs the message
     let { message, signedMessage, publicKey } = signMessage(signee.inventory, signee.signature);
 
-    let scenario = document.getElementById("scenario")
+    
     
     let olScenario = document.createElement("ol");
     let signingHTML = "Inventory " + signee.inventory.getLocation() + " concatenates their inventory information " + signee.inventory.getAll();
@@ -150,40 +150,11 @@ function signVerifyAndAddToChains(inventories: { inventory: Inventory; signature
 }
 
 
-
-async function main() {
-
-    //html
-    const version1Div = document.getElementById("version1")!;
-
-    const inventoryHeader = document.createElement("h5");
-    inventoryHeader.textContent = "Inventories: ";
-
-    version1Div.appendChild(inventoryHeader)
-
-    const inventoryDiv = document.createElement("div")
-    version1Div.appendChild(inventoryDiv)
-    
-    const invContent = document.createElement("p");
-    invContent.textContent = "Inventory keys being generated, please wait..."
-
-    inventoryDiv.appendChild(invContent)
-
-    //initialize inventories, signatures, and blockchains
-    console.log("Script (main) is running");
-    let inventories = [
-        createInventoryWithSignature(4, 12, 400, "A"),
-        createInventoryWithSignature(3, 22, 150, "B"),
-        createInventoryWithSignature(2, 20, 230, "C"),
-        createInventoryWithSignature(1, 32, 120, "D")
-    ];
-
+//START HERE
+async function printInventoryDetails(inventories: {inventory: Inventory, signature: DigitalSignature2, blockchain: Blockchain} []) {
     
 
     
-    // wait for initialization to complete
-    await new Promise<void>(resolve => setTimeout(resolve, 5000));
-
     for(let i: number =0; i < inventories.length; i++) {
         let invList = document.createElement("ul")
         invList.textContent = "Inventory " + inventories[i].inventory.getLocation()
@@ -229,15 +200,14 @@ async function main() {
     }
 
     invContent.textContent = "";
+}
+
+function printProcess(inventories: {inventory: Inventory, signature: DigitalSignature2, blockchain: Blockchain} []) {
 
     const signAndVerify = document.createElement("h4")
 
     // start adding in html for scenario
     signAndVerify.textContent = "Example Scenario:";
-
-
-    
-    
 
     // 3: If valid, add block to all blockchains
     for( let i = 0; i < inventories.length; i++) {
@@ -256,81 +226,167 @@ async function main() {
             }
         
     }
-
-    //user input fields
-    let userInput = document.getElementById("userInput") as HTMLElement;
-    let form = document.createElement("form");
-
-    // let idInput = document.createElement("input");
-    // idInput.name = "ID";
-    // idInput.placeholder = "Enter ID";
-
-    let quantityInput = document.createElement("input");
-    quantityInput.name = "Quantity";
-    quantityInput.placeholder = "Enter Quantity";
-    quantityInput.type = "number";
-
-    let priceInput = document.createElement("input");
-    priceInput.name = "Price";
-    priceInput.placeholder = "Enter Price";
-    priceInput.type = "number";
-
-    let locationInput = document.createElement("input");
-    locationInput.name = "Location";
-    locationInput.placeholder = "Enter Name/Location";
-
-    
-    let submitButton = document.createElement("button");
-    submitButton.type = "submit";
-    submitButton.textContent = "Submit";
-
-    // form.appendChild(idInput);
-    form.appendChild(quantityInput);
-    form.appendChild(priceInput);
-    form.appendChild(locationInput);
-    form.appendChild(submitButton);
-
-   
-    userInput.appendChild(form);
-
-    // Listen for form submission
-    form.addEventListener("submit", (event) => {
-        event.preventDefault();  // Prevent the form from submitting the traditional way
-        
-        // Retrieve values from the input fields
-        
-        let quantity: number = parseFloat(quantityInput.value)
-        let price: number = parseFloat(priceInput.value)
-        let location = locationInput.value;
-
-        let id = 0
-
-        for(let i = 0; i < inventories.length; i++) {
-            if(inventories[i].inventory.getId() >= id) {
-                id = inventories[i].inventory.getId() + 1
-            }
-
-        }
-
-        if (isNaN(quantity) || isNaN(price)) {
-            alert("Please enter a valid number for Quantity and Price.");
-            return; 
-        }
-    
-        
-        if (location === "") {
-            alert("Please fill in all fields.");
-            return; 
-        }
-        
-        inventories.push(createInventoryWithSignature(id, quantity, price, location))
-    });
-
-
-
-    
 }
+
+function printSingleProcess(inventories: {inventory: Inventory, signature: DigitalSignature2, blockchain: Blockchain} [] ) {
+
+
+        
+        signVerifyAndAddToChains(inventories, inventories[inventories.length-1])
+
+            console.log("All inventories verify signature!")
+
+            
+            if (consensusCheck(inventories)) {
+                console.log("Consensus reached!")
+        
+            }
+            else {
+                console.log("Consensus failed!")
+            }
+        
+}
+function findLongestChain(blockchains: Blockchain[]): Blockchain {
+    return blockchains.reduce((longest, current) => {
+        return current.chain.length > longest.chain.length ? current : longest;
+    }, blockchains[0]);  
+}
+
+    
+
+
+
+//html
+const version1Div = document.getElementById("version1")!;
+
+const inventoryHeader = document.createElement("h5");
+inventoryHeader.textContent = "Inventories: ";
+
+version1Div.appendChild(inventoryHeader)
+
+const inventoryDiv = document.createElement("div")
+version1Div.appendChild(inventoryDiv)
+
+
+
+//initialize inventories, signatures, and blockchains
+console.log("Script (main) is running");
+let inventories = [
+    createInventoryWithSignature(1, 32, 120, "D"),
+    createInventoryWithSignature(2, 20, 230, "C"),
+    createInventoryWithSignature(3, 22, 150, "B"),
+    createInventoryWithSignature(4, 12, 400, "A")
+    
+    
+];
+
+let scenario = document.getElementById("scenario") as HTMLElement
+
+const invContent = document.createElement("p");
+    invContent.textContent = "Inventory keys being generated, please wait..."
+
+    inventoryDiv.appendChild(invContent)
+
+    await new Promise<void>(resolve => setTimeout(resolve, 5000)); 
 
 
 console.log("Script (main) is running");
-main().catch(err => console.error(err));
+printInventoryDetails(inventories).catch(err => console.error(err));
+
+printProcess(inventories)
+
+
+
+
+//user input fields
+let userInput = document.getElementById("userInput") as HTMLElement;
+let form = document.createElement("form");
+
+// let idInput = document.createElement("input");
+// idInput.name = "ID";
+// idInput.placeholder = "Enter ID";
+
+let quantityInput = document.createElement("input");
+quantityInput.name = "Quantity";
+quantityInput.placeholder = "Enter Quantity";
+quantityInput.type = "number";
+
+let priceInput = document.createElement("input");
+priceInput.name = "Price";
+priceInput.placeholder = "Enter Price";
+priceInput.type = "number";
+
+let locationInput = document.createElement("input");
+locationInput.name = "Location";
+locationInput.placeholder = "Enter Name/Location";
+
+
+let submitButton = document.createElement("button");
+submitButton.type = "submit";
+submitButton.textContent = "Submit";
+
+// form.appendChild(idInput);
+form.appendChild(quantityInput);
+form.appendChild(priceInput);
+form.appendChild(locationInput);
+form.appendChild(submitButton);
+
+
+userInput.appendChild(form);
+
+// Listen for form submission
+form.addEventListener("submit", async (event) => {
+    event.preventDefault();  // Prevent the form from submitting the traditional way
+    
+    // Retrieve values from the input fields
+    
+    let quantity: number = parseFloat(quantityInput.value)
+    let price: number = parseFloat(priceInput.value)
+    let location = locationInput.value;
+
+    let id = 0
+
+    for(let i = 0; i < inventories.length; i++) {
+        if(inventories[i].inventory.getId() >= id) {
+            id = inventories[i].inventory.getId() + 1
+        }
+
+    }
+
+    if (isNaN(quantity) || isNaN(price)) {
+        alert("Please enter a valid number for Quantity and Price.");
+        return; 
+    }
+
+    
+    if (location === "") {
+        alert("Please fill in all fields.");
+        return; 
+    }
+    
+    let newInventoryObj = createInventoryWithSignature(id, quantity, price, location);
+
+    await new Promise<void>(resolve => setTimeout(resolve, 5000)); 
+    // wait for initialization to complete
+
+    let blockchains = inventories.map(inv => inv.blockchain);
+    let longestChain = findLongestChain(blockchains);
+    newInventoryObj.blockchain.chain = [...longestChain.chain];
+
+    inventories.push(newInventoryObj);
+    
+    inventoryDiv.innerHTML = "";
+    let newInvInfo = document.createElement("li")
+    newInvInfo.textContent="A new user trusts the longest chain - chain with the most work put into it"
+    newInvInfo.style.fontWeight = "bold";
+
+    scenario.appendChild(newInvInfo)
+
+
+    printInventoryDetails(inventories)
+
+
+    printSingleProcess(inventories)
+
+    //Might add process for inventories to edit their values
+});
