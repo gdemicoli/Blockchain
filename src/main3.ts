@@ -26,13 +26,13 @@ function signMessage(inventory: Inventory, signingSignature: DigitalSignature2) 
 }
 
 // function to allow other inventories to verify signature
-function verifyMessage(inventories: {inventory: Inventory, signature: DigitalSignature2, blockchain: Blockchain}[],
-     message: string, signedMessage: bigint, publicKey:{e: bigint, n:bigint}) {
+// function verifyMessage(inventories: {inventory: Inventory, signature: DigitalSignature2, blockchain: Blockchain},
+//      message: string, signedMessage: bigint, publicKey:{e: bigint, n:bigint}) {
         
-    return inventories.every(({ signature }) =>
-        signature.verifySignature(message, signedMessage, publicKey.e, publicKey.n)
-    );
-}
+//     return inventories.every(({ signature }) =>
+//         signature.verifySignature(message, signedMessage, publicKey.e, publicKey.n)
+//     );
+// }
 
 // functino to add verified message to the block chain
 function addToBlockChains(blockchains:Blockchain [], message: string) {
@@ -43,21 +43,45 @@ function addToBlockChains(blockchains:Blockchain [], message: string) {
 }
 
 // Functino to check for consensus across block chains
-function consensusCheck(blockchains:Blockchain[]): boolean {
-    for(let i: number = 0; i < blockchains.length; i++ ){
-        if(blockchains[i].chain[blockchains[i].chain.length-1].nonce !==
-             blockchains[0].chain[blockchains[0].chain.length-1].nonce){
-                return false
+function consensusCheck(inventories: { inventory: Inventory; signature: DigitalSignature2; blockchain: Blockchain }[]): boolean {
+
+    let consensus: boolean = true
+    let nonceArray: string[] = []
+
+    let scenario = document.getElementById("scenario")
+    
+    
+
+    for(let i: number = 0; i < inventories.length; i++ ){
+        nonceArray.push("Inventory " + inventories[i].inventory.getLocation() + "'s nonce value is: " + inventories[i].blockchain.chain[inventories[i].blockchain.chain.length-1].nonce)
+        
+        if(inventories[i].blockchain.chain[inventories[i].blockchain.chain.length-1].nonce !==
+             inventories[0].blockchain.chain[inventories[0].blockchain.chain.length-1].nonce)
+             {
+                consensus = false
             }
             
     }
-    return true
+
+    let ol: Node
+    nonceArray.forEach(element => { 
+        
+        ol = document.createElement("ol")
+        ol.textContent = element
+        scenario?.appendChild(ol)
+        
+    });
+
+    
+
+
+    return consensus
 
 }
 
 // Helper function for initial inventories
 function signVerifyAndAddToChains(inventories: { inventory: Inventory; signature: DigitalSignature2; blockchain: Blockchain }[],
-     signee: { inventory: Inventory; signature: DigitalSignature2; blockchain: Blockchain }): boolean {
+     signee: { inventory: Inventory; signature: DigitalSignature2; blockchain: Blockchain }) {
     // 1: Inventory D signs the message
     let { message, signedMessage, publicKey } = signMessage(signee.inventory, signee.signature);
 
@@ -67,18 +91,36 @@ function signVerifyAndAddToChains(inventories: { inventory: Inventory; signature
     let signingHTML = "Inventory " + signee.inventory.getLocation() + " concatenates their inventory information " + signee.inventory.getAll();
     let signingHTML2 = "The messaged is hashed in md5: " + signee.signature.hash
     let signingHTML3 = "Then the message is signed using m^d mod(n)"
-    let signingHTML4 = "The signed message is turned into a big int value (not a decimal conversion, but is a unique value and can be used for calculation)" + signedMessage
+    let signingHTML4 = "The signed message is turned into a big int value (not a decimal conversion, but is a unique value and can be used for calculation) " + signedMessage
+    
+    let unsignHTML = "The other inventories each verify the message using s^e mod(n):"
 
     // 2: Other inventories verify the signed message
-    let otherInventories = inventories.filter(inv => inv !== signee); 
-    let isValid = verifyMessage(otherInventories, message, signedMessage, publicKey);
+    let otherInventories = inventories.filter(inv => inv !== signee);
+    
+    // Array of blockchains that accept then signature
+    let acceptedBlockchains: Blockchain[] =[]
+    
 
-    let unsignHTML = "The other inventories each verify the message using s^e mod(n)"
+        otherInventories.forEach((recipient) => {
+            if(recipient.signature.verifySignature(message, signedMessage, publicKey.e, publicKey.n)){
+                unsignHTML += "\n Inventory " + recipient.inventory.getLocation() + " has verified the signature."
+                acceptedBlockchains.push(recipient.blockchain)
 
-    let blockchains = inventories.map(item => item.blockchain);
-    addToBlockChains(blockchains, message);
+            }
+            else {
+                unsignHTML += "\n Inventory " + recipient.inventory.getLocation() + "could not verify the signature."
+            }    
+        })
 
-    let unsignHTML2 = "If the unsigned message matches the signed message they add it to their ledger"
+    acceptedBlockchains.push(signee.blockchain)
+
+    
+
+    
+    addToBlockChains(acceptedBlockchains, message);
+
+    let unsignHTML2 = "If the signature is successfully verified they add it to their ledger."
 
     let liScenario = document.createElement("ol");
     let liScenario2 = document.createElement("ol");
@@ -103,7 +145,7 @@ function signVerifyAndAddToChains(inventories: { inventory: Inventory; signature
 
     scenario?.appendChild(olScenario)
 
-    return isValid
+    
 
 }
 
@@ -200,21 +242,31 @@ async function main() {
     // 3: If valid, add block to all blockchains
     for( let i = 0; i < inventories.length; i++) {
         
-        if (signVerifyAndAddToChains(inventories, inventories[i])) {
+        signVerifyAndAddToChains(inventories, inventories[i])
 
             console.log("All inventories verify signature!")
 
-            let blockchains = inventories.map(item => item.blockchain);
-            if (consensusCheck(blockchains)) {
+            
+            if (consensusCheck(inventories)) {
                 console.log("Consensus reached!")
         
             }
             else {
                 console.log("Consensus failed!")
             }
-        }
+        
     }
+
+    let userInput = document.getElementById("UserInput")
     
+    let idInput = document.createElement("input")
+    let quantityInput = document.createElement("input")
+    let priceInput = document.createElement("input")
+    let locationInput = document.createElement("input")
+
+
+
+
 
     
     
