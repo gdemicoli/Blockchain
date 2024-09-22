@@ -257,18 +257,77 @@ async function main() {
         
     }
 
-    let userInput = document.getElementById("UserInput")
+    //user input fields
+    let userInput = document.getElementById("userInput") as HTMLElement;
+    let form = document.createElement("form");
+
+    // let idInput = document.createElement("input");
+    // idInput.name = "ID";
+    // idInput.placeholder = "Enter ID";
+
+    let quantityInput = document.createElement("input");
+    quantityInput.name = "Quantity";
+    quantityInput.placeholder = "Enter Quantity";
+    quantityInput.type = "number";
+
+    let priceInput = document.createElement("input");
+    priceInput.name = "Price";
+    priceInput.placeholder = "Enter Price";
+    priceInput.type = "number";
+
+    let locationInput = document.createElement("input");
+    locationInput.name = "Location";
+    locationInput.placeholder = "Enter Name/Location";
+
     
-    let idInput = document.createElement("input")
-    let quantityInput = document.createElement("input")
-    let priceInput = document.createElement("input")
-    let locationInput = document.createElement("input")
+    let submitButton = document.createElement("button");
+    submitButton.type = "submit";
+    submitButton.textContent = "Submit";
 
+    // form.appendChild(idInput);
+    form.appendChild(quantityInput);
+    form.appendChild(priceInput);
+    form.appendChild(locationInput);
+    form.appendChild(submitButton);
 
+   
+    userInput.appendChild(form);
 
+    // Listen for form submission
+    form.addEventListener("submit", (event) => {
+        event.preventDefault();  // Prevent the form from submitting the traditional way
+        
+        // Retrieve values from the input fields
+        
+        let quantity: number = parseFloat(quantityInput.value)
+        let price: number = parseFloat(priceInput.value)
+        let location = locationInput.value;
 
+        let id = 0
 
+        for(let i = 0; i < inventories.length; i++) {
+            if(inventories[i].inventory.getId() >= id) {
+                id = inventories[i].inventory.getId() + 1
+            }
+
+        }
+
+        if (isNaN(quantity) || isNaN(price)) {
+            alert("Please enter a valid number for Quantity and Price.");
+            return; 
+        }
     
+        
+        if (location === "") {
+            alert("Please fill in all fields.");
+            return; 
+        }
+        
+        inventories.push(createInventoryWithSignature(id, quantity, price, location))
+    });
+
+
+
     
 }
 
