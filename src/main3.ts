@@ -2,7 +2,7 @@ import { Inventory } from './Inventory';
 import { DigitalSignature2 } from './DigitalSignature2';
 import { Block } from './Block';
 import { Blockchain } from './Blockchain';
-
+import * as crypto from 'crypto';
 
 //helper function to create an inventory and its signature
 function createInventoryWithSignature(id: number, quantity: number, price: number, name: string) {
@@ -90,8 +90,10 @@ function signVerifyAndAddToChains(inventories: { inventory: Inventory; signature
     let olScenario = document.createElement("ol");
     let signingHTML = "Inventory " + signee.inventory.getLocation() + " concatenates their inventory information " + signee.inventory.getAll();
     let signingHTML2 = "The messaged is hashed in md5: " + signee.signature.hash
+    let signingHTML21 = "The message is turned into a big int value (not a decimal conversion, but is a unique value and can be used for calculation)" 
+    let signingHTML22 = "The big int value of the message is: " + BigInt('0x' + signee.signature.hash) 
     let signingHTML3 = "Then the message is signed using m^d mod(n)"
-    let signingHTML4 = "The signed message is turned into a big int value (not a decimal conversion, but is a unique value and can be used for calculation) " + signedMessage
+    let signingHTML4 = "The signed message: " + signedMessage
     
     let unsignHTML = "The other inventories each verify the message using s^e mod(n):"
 
@@ -124,6 +126,8 @@ function signVerifyAndAddToChains(inventories: { inventory: Inventory; signature
 
     let liScenario = document.createElement("ol");
     let liScenario2 = document.createElement("ol");
+    let liScenario21 = document.createElement("ol");
+    let liScenario22 = document.createElement("ol");
     let liScenario3 = document.createElement("ol");
     let liScenario4 = document.createElement("ol");
     let liScenario5 = document.createElement("ol");
@@ -131,6 +135,8 @@ function signVerifyAndAddToChains(inventories: { inventory: Inventory; signature
 
     liScenario.textContent = signingHTML
     liScenario2.textContent = signingHTML2
+    liScenario21.textContent = signingHTML21
+    liScenario22.textContent = signingHTML22
     liScenario3.textContent = signingHTML3
     liScenario4.textContent = signingHTML4
     liScenario5.textContent = unsignHTML
@@ -138,6 +144,8 @@ function signVerifyAndAddToChains(inventories: { inventory: Inventory; signature
 
     olScenario.appendChild(liScenario)
     olScenario.appendChild(liScenario2)
+    olScenario.appendChild(liScenario21)
+    olScenario.appendChild(liScenario22)
     olScenario.appendChild(liScenario3)
     olScenario.appendChild(liScenario4)
     olScenario.appendChild(liScenario5)
@@ -419,6 +427,8 @@ form.addEventListener("submit", async (event) => {
     printInventoryDetails(inventories)
     
     printSingleProcess(inventories)
+
+    console.log("Length of inventory A's chain: " + inventories[3].blockchain.chain.length + " (including genesis block)")
 
    
 });
