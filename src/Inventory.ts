@@ -46,6 +46,19 @@ export class Inventory{
 
     }
 
+    // Setters
+    updateId(id: number) {
+        this.id = id
+    }
+
+    updateQuantity(quantity: number) {
+        this.quantity = quantity
+    }
+
+    updatePrice(price: number){
+        this.price = price
+    }
+
 
 
 }

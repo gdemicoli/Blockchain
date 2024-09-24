@@ -51,7 +51,7 @@ function consensusCheck(inventories: { inventory: Inventory; signature: DigitalS
     let scenario = document.getElementById("scenario")
     
     
-
+// Consensus 
     for(let i: number = 0; i < inventories.length; i++ ){
         nonceArray.push("Inventory " + inventories[i].inventory.getLocation() + "'s nonce value is: " + inventories[i].blockchain.chain[inventories[i].blockchain.chain.length-1].nonce)
         
@@ -228,11 +228,26 @@ function printProcess(inventories: {inventory: Inventory, signature: DigitalSign
     }
 }
 
-function printSingleProcess(inventories: {inventory: Inventory, signature: DigitalSignature2, blockchain: Blockchain} [] ) {
+function printSingleProcess(inventories: {inventory: Inventory, signature: DigitalSignature2, blockchain: Blockchain} []) {
 
+    let updatedInventory: {inventory: Inventory, signature: DigitalSignature2, blockchain: Blockchain }
+    let highestID = 0
 
+    for(let i = 0; i < inventories.length; i++) {
+        if(highestID < inventories[i].inventory.getId()){
+            highestID = inventories[i].inventory.getId()
+            updatedInventory = inventories[i]
+           
+        }
+    }
+    
         
-        signVerifyAndAddToChains(inventories, inventories[inventories.length-1])
+        signVerifyAndAddToChains(inventories, updatedInventory!)
+
+        console.log("The n value of " + updatedInventory!.inventory.getLocation() + " is: " + updatedInventory!.signature.getPublicKey().n)
+        console.log("The e value of " + updatedInventory!.inventory.getLocation() + " is: " + updatedInventory!.signature.getPublicKey().e)
+        console.log("The d value of "  + updatedInventory!.inventory.getLocation() + " is: " + updatedInventory!.signature.getPrivateKey().d)
+    
 
             console.log("All inventories verify signature!")
 
@@ -316,9 +331,26 @@ priceInput.name = "Price";
 priceInput.placeholder = "Enter Price";
 priceInput.type = "number";
 
-let locationInput = document.createElement("input");
+let labelLocations = document.createElement("Label")
+labelLocations.textContent = "Location/Name"
+let locationInput = document.createElement("select");
 locationInput.name = "Location";
-locationInput.placeholder = "Enter Name/Location";
+
+
+const placeholderOption = document.createElement("option");
+placeholderOption.value = "";
+placeholderOption.disabled = true;
+placeholderOption.selected = true;
+placeholderOption.textContent = "Select an inventory";
+locationInput.appendChild(placeholderOption);
+
+// Create and the inventory options
+inventories.forEach(name => {
+    const option = document.createElement("option");
+    option.value = name.inventory.getLocation()
+    option.textContent = name.inventory.getLocation();
+    locationInput.appendChild(option);
+});
 
 
 let submitButton = document.createElement("button");
@@ -363,30 +395,30 @@ form.addEventListener("submit", async (event) => {
         alert("Please fill in all fields.");
         return; 
     }
-    
-    let newInventoryObj = createInventoryWithSignature(id, quantity, price, location);
+
+
+
+    for(let i = 0; i < inventories.length; i++) {
+        if(location === inventories[i].inventory.getLocation()){
+            inventories[i].inventory.updateId(id)
+            inventories[i].inventory.updatePrice(price)
+            inventories[i].inventory.updateQuantity(quantity)
+
+            
+        }
+    }
+
 
     await new Promise<void>(resolve => setTimeout(resolve, 5000)); 
     // wait for initialization to complete
 
-    let blockchains = inventories.map(inv => inv.blockchain);
-    let longestChain = findLongestChain(blockchains);
-    newInventoryObj.blockchain.chain = [...longestChain.chain];
-
-    inventories.push(newInventoryObj);
     
     inventoryDiv.innerHTML = "";
-    let newInvInfo = document.createElement("li")
-    newInvInfo.textContent="A new user trusts the longest chain - chain with the most work put into it"
-    newInvInfo.style.fontWeight = "bold";
-
-    scenario.appendChild(newInvInfo)
 
 
     printInventoryDetails(inventories)
-
-
+    
     printSingleProcess(inventories)
 
-    //Might add process for inventories to edit their values
+   
 });

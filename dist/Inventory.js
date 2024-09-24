@@ -24,5 +24,15 @@ export class Inventory {
         let formattedId = this.id.toString().padStart(3, '0');
         return formattedId + this.quantity + this.price + this.location;
     }
+    // Setters
+    updateId(id) {
+        this.id = id;
+    }
+    updateQuantity(quantity) {
+        this.quantity = quantity;
+    }
+    updatePrice(price) {
+        this.price = price;
+    }
 }
 //# sourceMappingURL=Inventory.js.map
