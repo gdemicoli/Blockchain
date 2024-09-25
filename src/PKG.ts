@@ -7,10 +7,12 @@ export class PublicKeyGenerator{
     private privateKey!: { d: bigint; n: bigint };
     private p!: bigint;
     private q!: bigint;
+    private numSigners: number;
 
     constructor() {
 
         this.init();
+        this.numSigners = 0
     }
 
     private async init(){
@@ -46,6 +48,14 @@ export class PublicKeyGenerator{
         this.publicKey = { e, n };
         this.privateKey = { d, n };
 
+
+    }
+
+    public addSigner(id: number) {
+        this.numSigners+=1;
+
+        // calculates he signers g value
+        return modPow(id, this.privateKey.d, this.privateKey.n);
 
     }
 

@@ -25,15 +25,6 @@ function signMessage(inventory: Inventory, signingSignature: DigitalSignature2) 
     return { message, signedMessage, publicKey };
 }
 
-// function to allow other inventories to verify signature
-// function verifyMessage(inventories: {inventory: Inventory, signature: DigitalSignature2, blockchain: Blockchain},
-//      message: string, signedMessage: bigint, publicKey:{e: bigint, n:bigint}) {
-        
-//     return inventories.every(({ signature }) =>
-//         signature.verifySignature(message, signedMessage, publicKey.e, publicKey.n)
-//     );
-// }
-
 // functino to add verified message to the block chain
 function addToBlockChains(blockchains:Blockchain [], message: string) {
     let currentDate = new Date().toLocaleDateString('en-AU');
