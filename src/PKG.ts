@@ -8,17 +8,20 @@ export class PublicKeyGenerator{
     private p!: bigint;
     private q!: bigint;
     private numSigners: number;
+    private tValues: bigint[] 
 
     constructor() {
-
+        this.tValues = []
         this.init();
+        
         this.numSigners = 0
     }
 
     private async init(){
         //generate p & q prime numbers
-        this.p = await this.generatePrime(130);
-        this.q = await this.generatePrime(130);
+        this.p = await this.generatePrime(80);
+        this.q = await this.generatePrime(80);
+        
 
         this.generateKeyPair();
     }
@@ -51,14 +54,40 @@ export class PublicKeyGenerator{
 
     }
 
-    public addSigner(id: number) {
+    public addSigner(id: number):bigint {
         this.numSigners+=1;
 
         // calculates he signers g value
-        return modPow(id, this.privateKey.d, this.privateKey.n);
+
+        
+        return modPow(id, this.privateKey.d, this.privateKey.n)
 
     }
 
+    public addTValue(t: bigint){
+        this.tValues.push(t)
+    }
+
+    public computeAggregateT():bigint {
+
+        let productT = BigInt(1)
+        for(let i = 0; i < this.tValues.length; i++){
+            productT = productT * this.tValues[i] 
+        }
+
+        return modPow(productT, 1, this.publicKey.n )
+
+    }
+
+    public getE(): bigint {
+        return this.publicKey.e
+    }
+    public getN(): bigint {
+        return this.publicKey.n
+    }
+    public getD(): bigint {
+        return this.privateKey.d
+    }
 
 
 

@@ -9,6 +9,8 @@ export class Inventory{
     private location: string;
     
 
+    
+
     constructor (id: number, quantity: number, price: number, location: string){
         this.id = id;
         this.quantity = quantity;
