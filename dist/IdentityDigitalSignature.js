@@ -21,47 +21,10 @@ export class IdentityDigitalSignature {
         let primeNumber = await prime(bits);
         return primeNumber;
     }
-    // private generatePrime(): bigint{
-    //     // Generate a prime number with the specified number of bits
-    //     let primeNumbers = [2,3,5,7,11,13,17,19,23,29,31,37,41,43,47]
-    //     let randomIndex = Math.floor(Math.random() * primeNumbers.length);
-    //     // Return the prime number at the randomly selected index
-    //     return BigInt(primeNumbers[randomIndex])
-    // }
-    //     private async generatePrime(bits: number): Promise<bigint> {
-    //         // Generate a prime number with the specified number of bits
-    //         let primeNumber: bigint = await prime(bits);
-    //         return primeNumber;
-    //     }
-    //     // generates public and private keys for rsa
-    //     private async generateKeyPair() {
-    //         const n: bigint = this.p * this.q;
-    //         const phi: bigint = (this.p -1n) * (this.q -1n);
-    //         //check to make sure e and phi n are coprime
-    //         let e: bigint;
-    //         do {
-    //             e = await this.generatePrime(32);
-    //         } while (gcd(e, phi) !== 1n);
-    //         //calculate inverse mod of e and phi 
-    //         const d = modInv(e, phi); 
-    //         this.publicKey = { e, n };
-    //         this.privateKey = { d, n };
-    //     }
-    //     //gcd calculator
-    //     private static gcdBigInt(a: bigint, b: bigint): bigint {
-    //         if (b === 0n) {
-    //             return a;
-    //         }
-    //         return this.gcdBigInt(b, a % b);
-    //     }
     async signMessage(message, tAggregate) {
         //hashes message and transforms it into a big int
         this.hashTM = this.stringToMD5BigInt(tAggregate + message);
         // // calculates g*r^H(t,m)mod(n)
-        // let expoMulti = this.privateKeyG * this.randInt ** hashTM
-        // // let hashTM = BigInt(256849518824760635844157958915724147230)
-        // // let expoMulti = this.randInt ** hashTM
-        // this.sValue = expoMulti % this.publicKeyN
         this.sValue = this.privateKeyG * modPow(this.randInt, this.hashTM, this.publicKeyN);
         return this.sValue;
     }
@@ -72,20 +35,14 @@ export class IdentityDigitalSignature {
         let hashBigInt = BigInt('0x' + hash);
         return hashBigInt;
     }
-    //     public verifySignature(message: string, signature: bigint, eValue: bigint, nValue: bigint): boolean {
-    //         //performs decryption calculation
-    //         let decryptedMessageBigInt = modPow(signature, eValue, nValue);
-    //         // prior to signing we hash the message and change it to a big int
-    //         // so here we need to do that to the message for comparison
-    //         // so that they are in the same form
-    //         let hashBigIntMessage = this.stringToMD5BigInt(message)
-    //         if (decryptedMessageBigInt === hashBigIntMessage){
-    //             return true;
-    //         }
-    //         else{
-    //             return false;
-    //         }
-    //     }
+    findMultiSig(sigs) {
+        let productSigs = BigInt(1);
+        sigs.forEach(signature => {
+            productSigs = productSigs * signature;
+        });
+        this.multiSig = modPow(productSigs, 1, this.publicKeyN);
+        return this.multiSig;
+    }
     //     // getter methods:
     getTvalue() {
         return this.tValue;
@@ -104,6 +61,9 @@ export class IdentityDigitalSignature {
     }
     getHash() {
         return this.hashTM;
+    }
+    getS() {
+        return this.sValue;
     }
 }
 //# sourceMappingURL=IdentityDigitalSignature.js.map

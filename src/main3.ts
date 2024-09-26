@@ -4,6 +4,7 @@ import { Block } from './Block';
 import { Blockchain } from './Blockchain';
 import { PublicKeyGenerator } from './PKG'
 import * as crypto from 'crypto';
+import { modPow } from 'bigint-crypto-utils';
 
 //helper function to create an inventory and its t value
 function createInventoryWithSignature(id: number, quantity: number, price: number, name: string) {
@@ -155,11 +156,13 @@ function consensusCheck(inventories: { inventory: Inventory; signature: Identity
 async function printInventoryDetails(inventories: {inventory: Inventory, signature: IdentityDigitalSignature, blockchain: Blockchain} []) {
     
     let tAggregate = PKG.computeAggregateT()
+    let signatures :bigint[] =[]
 
     console.log("agregate t value: " + tAggregate)
 
     let scenario = document.getElementById("scenario")
     
+    // 5. individual signature generation
     for(let i: number =0; i < inventories.length; i++) {
         let invList = document.createElement("ul")
         invList.textContent = "Inventory " + inventories[i].inventory.getLocation()
@@ -203,6 +206,8 @@ async function printInventoryDetails(inventories: {inventory: Inventory, signatu
         
         
         let signedMessage = await inventories[i].signature.signMessage(inventories[i].inventory.getAll(), tAggregate)
+        
+        signatures.push(signedMessage)
 
         liSCalculation2.textContent = "Which is: " + inventories[i].signature.getG() + " * " + inventories[i].signature.getRvalue() + " ^ " + inventories[i].signature.getHash() +
         " mod " + inventories[i].signature.getN()
@@ -225,22 +230,53 @@ async function printInventoryDetails(inventories: {inventory: Inventory, signatu
         invList.appendChild(liSValue2)
         scenario?.appendChild(invList)
 
-        let signingDetails = document.createElement("div")
-        let multiSigInfo = document.createElement("ol")
-        multiSigInfo.textContent = "Multi Signature Generation"
-
-        let liMSG = document.createElement("li")
-
-        liMSG.textContent = "Now that all of the signatures have been generated, the inve"
-
-        inventoryDiv.appendChild(signingDetails)
-        
-
-        
-
     }
 
+
+
+    // 6. multi sig generation
     invContent.textContent = "";
+
+    let signingDetails = document.createElement("div")
+        signingDetails.textContent = "Multi Signature Generation"
+
+    for (let i =0; i < inventories.length; i++) {
+        
+        let multiSigInfo = document.createElement("ol")
+
+        multiSigInfo.textContent = "Inventory " + inventories[i].inventory.getLocation()
+
+        let liMSG = document.createElement("li")
+        let liMSG2 = document.createElement("li")
+        let liMSG3 = document.createElement("li")
+
+        let multiSig:bigint = inventories[i].signature.findMultiSig(signatures)
+
+        liMSG.textContent = "After inventory " + inventories[i].inventory.getLocation() + " recieves all of the signatures it computes their product, let that be j"
+        liMSG2.textContent = "Then they compute: j mod n = mSig"
+        liMSG3.textContent = "mSig = " + multiSig
+
+        multiSigInfo.appendChild(liMSG)
+        multiSigInfo.appendChild(liMSG2)
+        multiSigInfo.appendChild(liMSG3)
+
+        signingDetails.appendChild(multiSigInfo)
+        scenario?.appendChild(signingDetails)
+    }
+
+    // 7. verification & consensus
+    let verificationDetails = document.createElement("div")
+        
+//FINISH ME SIGNATURE VALIDATION FOR EACH INVENTORY
+    // for (let i = 0; i< inventories.length; i++) {
+
+    //     let verificationList = document.createElement("ol")
+    //     verificationList.textContent = "Verification & Consensus"
+    //     verification.textContent = "Inventory " + inventories[i].inventory.getLocation()
+
+
+    // }
+
 }
 
 // function printProcess(inventories: {inventory: Inventory, signature: IdentityDigitalSignature, blockchain: Blockchain} []) {
