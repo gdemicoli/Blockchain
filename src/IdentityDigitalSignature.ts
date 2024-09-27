@@ -19,15 +19,31 @@ export class IdentityDigitalSignature{
     private hashTM!: bigint
     private multiSig!: bigint
     
+    //3. FIX ME remove rand seed page 6
+    constructor(privateKey: bigint, eValue: bigint, nValue: bigint, randSeed?: number) {
 
-    constructor(privateKey: bigint, eValue: bigint, nValue: bigint) {
-        this.privateKeyG = privateKey;
-        this.eValue = eValue;
-        this.publicKeyN = nValue
-
-        this.init().then(() => {
+        //5. FIX ME remove  if else block for rand seed
+        if(randSeed !== undefined) {
+            let randomNums: number[] = [124524, 117623, 156253]
+            this.privateKeyG = privateKey;
+            this.eValue = eValue;
+            this.publicKeyN = nValue
+            this.randInt = BigInt(randomNums[randSeed])
             this.tValue = modPow(this.randInt, this.eValue, this.publicKeyN);
-        });
+
+            
+        }
+        else {
+            this.privateKeyG = privateKey;
+            this.eValue = eValue;
+            this.publicKeyN = nValue
+
+            this.init().then(() => {
+                this.tValue = modPow(this.randInt, this.eValue, this.publicKeyN);
+            });
+            
+        }
+
     }   
 
     private async init(){
@@ -46,15 +62,17 @@ export class IdentityDigitalSignature{
 
     public async signMessage(message: string, tAggregate: bigint): Promise<bigint> {
         //hashes message and transforms it into a big int
-        this.hashTM = this.stringToMD5BigInt(tAggregate + message);
+        // this.hashTM = this.stringToMD5BigInt(tAggregate + message);
 
-        // console.log("Hash TM: " + this.hashTM)
+        // // console.log("Hash TM: " + this.hashTM)
 
-        this.hashTM = (tAggregate+ BigInt(10))
+        // this.hashTM = (tAggregate+ BigInt(10))
 
-        // // calculates g*r^H(t,m)mod(n)
+        // FIX ME 6 REMOVE HARDCODED HASH VALUE if everything works suspected issue probably lies here with hash to big int conversion
+        this.hashTM = 291695778141170921277911006969911971888n
 
-        this.sValue = this.privateKeyG * modPow(this.randInt, this.hashTM, this.publicKeyN);
+        // finding s value (Truly humble under god)
+        this.sValue = (this.privateKeyG % this.publicKeyN) * modPow(this.randInt, this.hashTM, this.publicKeyN) % this.publicKeyN;
 
         return this.sValue
         
@@ -71,7 +89,8 @@ export class IdentityDigitalSignature{
         return hashBigInt;
 
     }
-    
+
+        
     findMultiSig(sigs: bigint[]) {
 
         let productSigs: bigint = BigInt(1)
@@ -90,17 +109,19 @@ export class IdentityDigitalSignature{
     sigValidation(ids: number [], aggregateT: bigint):boolean {
         let firstVal = modPow(this.multiSig, this.eValue, this.publicKeyN)
         
-
-        let secondVal = modPow(aggregateT, this.hashTM, this.publicKeyN)
-
         let idProduct:bigint = BigInt(1)
         ids.forEach(id => {
-            idProduct = idProduct * BigInt(id) % this.publicKeyN            
+            idProduct = idProduct * BigInt(id)         
         });
+
+        let secondVal = (idProduct % this.publicKeyN) * modPow(aggregateT, this.hashTM, this.publicKeyN) % this.publicKeyN;
+
+
+        
 
         console.log("id product is: " + idProduct)
 
-        secondVal = BigInt(idProduct) * secondVal
+        
 
         console.log("first Value is: " + firstVal)
         console.log("second Value is: " + secondVal)

@@ -76,7 +76,7 @@ export class PublicKeyGenerator{
 
         // calculates he signers g value
 
-        
+        console.log(id + " created g value " + modPow(id, this.privateKey.d, this.privateKey.n))
         return modPow(id, this.privateKey.d, this.privateKey.n)
 
     }

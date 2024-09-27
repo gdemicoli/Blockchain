@@ -7,15 +7,30 @@ import * as crypto from 'crypto';
 import { modPow } from 'bigint-crypto-utils';
 
 //helper function to create an inventory and its t value
-function createInventoryWithSignature(id: number, quantity: number, price: number, name: string) {
+function createInventoryWithSignature(id: number, quantity: number, price: number, name: string, randSeed?: number) {
     
-    const inventory = new Inventory(id, quantity, price, name);
-    let signature = new IdentityDigitalSignature(PKG.addSigner(id), PKG.getE(), PKG.getN())
-    const blockchain = new Blockchain();
-    
+    // 4. FIX ME remove rand int seed and get rid of if else block
+
+    if(randSeed !== undefined) {
+        const inventory = new Inventory(id, quantity, price, name);
+        let signature = new IdentityDigitalSignature(PKG.addSigner(id), PKG.getE(), PKG.getN(), randSeed)
+        const blockchain = new Blockchain();
+
+        return { inventory, signature, blockchain };
+
+        
+    }
+    else {
+        const inventory = new Inventory(id, quantity, price, name);
+        let signature = new IdentityDigitalSignature(PKG.addSigner(id), PKG.getE(), PKG.getN())
+        const blockchain = new Blockchain();
+
+        return { inventory, signature, blockchain };
+        
+    }
 
 
-    return { inventory, signature, blockchain };
+    
 }
 
 //function to sign a message by the signing inventory
@@ -156,6 +171,8 @@ function consensusCheck(inventories: { inventory: Inventory; signature: Identity
 async function printInventoryDetails(inventories: {inventory: Inventory, signature: IdentityDigitalSignature, blockchain: Blockchain} []) {
     
     let tAggregate = PKG.computeAggregateT()
+
+    
     let signatures :bigint[] =[]
 
     console.log("agregate t value: " + tAggregate)
@@ -403,9 +420,9 @@ await new Promise<void>(resolve => setTimeout(resolve, 5000));
 // 2. create inventories & thier t values
 console.log("Script (main) is running");
 let inventories = [
-    createInventoryWithSignature(3231265, 32, 120, "D"),
-    createInventoryWithSignature(5342532, 20, 230, "C"),
-    createInventoryWithSignature(4526377, 22, 150, "B"),
+    createInventoryWithSignature(3231265, 32, 120, "D", 0), //A on lab sheet
+    createInventoryWithSignature(5342532, 20, 230, "C", 1),
+    createInventoryWithSignature(4526377, 22, 150, "B", 2),
     // createInventoryWithSignature(514539878, 12, 400, "A")
     
     
