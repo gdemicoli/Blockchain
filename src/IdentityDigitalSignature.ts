@@ -48,6 +48,10 @@ export class IdentityDigitalSignature{
         //hashes message and transforms it into a big int
         this.hashTM = this.stringToMD5BigInt(tAggregate + message);
 
+        // console.log("Hash TM: " + this.hashTM)
+
+        this.hashTM = (tAggregate+ BigInt(10))
+
         // // calculates g*r^H(t,m)mod(n)
 
         this.sValue = this.privateKeyG * modPow(this.randInt, this.hashTM, this.publicKeyN);
@@ -83,6 +87,31 @@ export class IdentityDigitalSignature{
 
     }
 
+    sigValidation(ids: number [], aggregateT: bigint):boolean {
+        let firstVal = modPow(this.multiSig, this.eValue, this.publicKeyN)
+        
+
+        let secondVal = modPow(aggregateT, this.hashTM, this.publicKeyN)
+
+        let idProduct:bigint = BigInt(1)
+        ids.forEach(id => {
+            idProduct = idProduct * BigInt(id) % this.publicKeyN            
+        });
+
+        console.log("id product is: " + idProduct)
+
+        secondVal = BigInt(idProduct) * secondVal
+
+        console.log("first Value is: " + firstVal)
+        console.log("second Value is: " + secondVal)
+
+        if(firstVal === secondVal) {
+            return true
+        }
+        return false
+
+    }
+
 //     // getter methods:
         public getTvalue(): bigint {
             return this.tValue
@@ -113,5 +142,10 @@ export class IdentityDigitalSignature{
         return this.sValue
     }
 
+    public getMultiSig(): bigint {
+        return this.multiSig
+    }
+
+    
 
 }

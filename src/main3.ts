@@ -266,16 +266,52 @@ async function printInventoryDetails(inventories: {inventory: Inventory, signatu
 
     // 7. verification & consensus
     let verificationDetails = document.createElement("div")
+    verificationDetails.textContent = "Verification & Consensus"
+
+    scenario?.appendChild(verificationDetails)
         
 //FINISH ME SIGNATURE VALIDATION FOR EACH INVENTORY
-    // for (let i = 0; i< inventories.length; i++) {
+    for (let i = 0; i< inventories.length; i++) {
 
-    //     let verificationList = document.createElement("ol")
-    //     verificationList.textContent = "Verification & Consensus"
-    //     verification.textContent = "Inventory " + inventories[i].inventory.getLocation()
+        let verificationList = document.createElement("ol")
+        verificationList.textContent = "Inventory " + inventories[i].inventory.getLocation()
+
+        let liVer = document.createElement("li")
+        let liVer2 = document.createElement("li")
+        let liVer3 = document.createElement("li")
+        let liVer4 = document.createElement("li")
+
+        liVer.textContent = "To get consensus and perform verification inventory " + inventories[i].inventory.getLocation() +
+        "has to calculate s^e mod n = x"
+        liVer2.textContent = "Which is: " + inventories[i].signature.getMultiSig() + " ^ " + inventories[i].signature.getE() + " mod " + inventories[i].signature.getN()
+        liVer3. textContent = "Then inventory " + inventories[i].inventory.getLocation() + " has to calculate the product of all the ids of the inventories in the system let that = i"
+        liVer4.textContent = "Then calculate i * t ^H(t,m) mod n"
+        
+        let confirmation = document.createElement("li")
+
+        if (inventories[i].signature.sigValidation(PKG.getIDs(), PKG.getAggregateT())){
+            confirmation.textContent = "Inventory " + inventories[i].inventory.getLocation() + " successfully validated and reached consensus"
+
+        }
+        else {
+            confirmation.textContent = "Inventory " + inventories[i].inventory.getLocation() +" couldn't verify and reach consensus. Do not panic, back yourself!"
+        }
 
 
-    // }
+        
+        
+
+
+        verificationList.appendChild(liVer)
+        verificationList.appendChild(liVer2)
+        verificationList.appendChild(liVer3)
+        verificationList.appendChild(liVer4)
+        verificationList.appendChild(confirmation)
+
+        verificationDetails.appendChild(verificationList)
+
+
+    }
 
 }
 
@@ -367,10 +403,10 @@ await new Promise<void>(resolve => setTimeout(resolve, 5000));
 // 2. create inventories & thier t values
 console.log("Script (main) is running");
 let inventories = [
-    createInventoryWithSignature(2, 32, 120, "D"),
-    createInventoryWithSignature(3, 20, 230, "C"),
-    createInventoryWithSignature(4, 22, 150, "B"),
-    createInventoryWithSignature(5, 12, 400, "A")
+    createInventoryWithSignature(3231265, 32, 120, "D"),
+    createInventoryWithSignature(5342532, 20, 230, "C"),
+    createInventoryWithSignature(4526377, 22, 150, "B"),
+    // createInventoryWithSignature(514539878, 12, 400, "A")
     
     
 ];
