@@ -4,25 +4,32 @@ import { Inventory } from './Inventory';
 // ledger that holds all records of 
 export class Block {
     index: number;
-    time: string
+    
     data: string;
     previousHash: string;
     hash: string;
     nonce:number = 0
 
-    constructor (index: number, time: string, data: string, previousHash: string = ''){
+    constructor (index: number, data: string, previousHash: string = ''){
         this.index = index;
-        this.time = time;
+        
         this.data = data;
         this.previousHash = previousHash;
         this.hash = this.createHash()
+
+        console.log("new blockn created with: " )
+        console.log(`Block ${index}:`);
+            console.log(`  Index: ${index}`);
+            console.log(`  Data: ${data}`);
+            console.log(`  Previous Hash: ${previousHash}`);
+            console.log();
         
     }
 
     createHash(): string {
         //creates a hash of the block
         let formattedIndex: string = this.index.toString()
-        return crypto.createHash('md5').update(formattedIndex + this.previousHash+ this.time + this.data + this.nonce).digest('hex').toString()
+        return crypto.createHash('md5').update(formattedIndex + this.previousHash + this.data + this.nonce).digest('hex').toString()
     }
 
     mineBlock(numZeroes: number){

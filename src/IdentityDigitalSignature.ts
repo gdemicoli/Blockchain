@@ -20,20 +20,9 @@ export class IdentityDigitalSignature{
     private multiSig!: bigint
     
     //3. FIX ME remove rand seed page 6
-    constructor(privateKey: bigint, eValue: bigint, nValue: bigint, randSeed?: number) {
+    constructor(privateKey: bigint, eValue: bigint, nValue: bigint) {
 
-        //5. FIX ME remove  if else block for rand seed
-        if(randSeed !== undefined) {
-            let randomNums: number[] = [124524, 117623, 156253]
-            this.privateKeyG = privateKey;
-            this.eValue = eValue;
-            this.publicKeyN = nValue
-            this.randInt = BigInt(randomNums[randSeed])
-            this.tValue = modPow(this.randInt, this.eValue, this.publicKeyN);
-
-            
-        }
-        else {
+        
             this.privateKeyG = privateKey;
             this.eValue = eValue;
             this.publicKeyN = nValue
@@ -41,9 +30,6 @@ export class IdentityDigitalSignature{
             this.init().then(() => {
                 this.tValue = modPow(this.randInt, this.eValue, this.publicKeyN);
             });
-            
-        }
-
     }   
 
     private async init(){
@@ -111,13 +97,6 @@ export class IdentityDigitalSignature{
 
 
         
-
-        console.log("id product is: " + idProduct)
-
-        
-
-        console.log("first Value is: " + firstVal)
-        console.log("second Value is: " + secondVal)
 
         if(firstVal === secondVal) {
             return true

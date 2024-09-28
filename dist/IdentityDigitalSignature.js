@@ -5,24 +5,13 @@ import * as crypto from 'crypto';
 //RSA implementation
 export class IdentityDigitalSignature {
     //3. FIX ME remove rand seed page 6
-    constructor(privateKey, eValue, nValue, randSeed) {
-        //5. FIX ME remove  if else block for rand seed
-        if (randSeed !== undefined) {
-            let randomNums = [124524, 117623, 156253];
-            this.privateKeyG = privateKey;
-            this.eValue = eValue;
-            this.publicKeyN = nValue;
-            this.randInt = BigInt(randomNums[randSeed]);
+    constructor(privateKey, eValue, nValue) {
+        this.privateKeyG = privateKey;
+        this.eValue = eValue;
+        this.publicKeyN = nValue;
+        this.init().then(() => {
             this.tValue = modPow(this.randInt, this.eValue, this.publicKeyN);
-        }
-        else {
-            this.privateKeyG = privateKey;
-            this.eValue = eValue;
-            this.publicKeyN = nValue;
-            this.init().then(() => {
-                this.tValue = modPow(this.randInt, this.eValue, this.publicKeyN);
-            });
-        }
+        });
     }
     async init() {
         //generate p & q prime numbers
@@ -36,13 +25,6 @@ export class IdentityDigitalSignature {
     async signMessage(message, tAggregate) {
         //hashes message and transforms it into a big int
         this.hashTM = this.stringToMD5BigInt(tAggregate + message);
-        // // console.log("Hash TM: " + this.hashTM)
-        // this.hashTM = (tAggregate+ BigInt(10))
-        // FIX ME 6 REMOVE HARDCODED HASH VALUE if everything works suspected issue probably lies here with hash to big int conversion
-        // let hashArray: bigint[] = [291695778141170921277911006969911971888n, 291614778133170921277911006969911971888n, 3546876432414778133170921277911006969911971888n, 414778133170921277911006969911971888n]
-        // const randomIndex = Math.floor(Math.random() * hashArray.length);
-        // this.hashTM = hashArray[randomIndex];
-        // this.hashTM = 291695778141170921277911006969911971888n
         // finding s value (Truly humble under god)
         this.sValue = (this.privateKeyG % this.publicKeyN) * modPow(this.randInt, this.hashTM, this.publicKeyN) % this.publicKeyN;
         return this.sValue;
@@ -69,9 +51,6 @@ export class IdentityDigitalSignature {
             idProduct = idProduct * BigInt(id);
         });
         let secondVal = (idProduct % this.publicKeyN) * modPow(aggregateT, this.hashTM, this.publicKeyN) % this.publicKeyN;
-        console.log("id product is: " + idProduct);
-        console.log("first Value is: " + firstVal);
-        console.log("second Value is: " + secondVal);
         if (firstVal === secondVal) {
             return true;
         }

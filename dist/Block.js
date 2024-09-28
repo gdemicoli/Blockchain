@@ -1,18 +1,23 @@
 import * as crypto from 'crypto';
 // ledger that holds all records of 
 export class Block {
-    constructor(index, time, data, previousHash = '') {
+    constructor(index, data, previousHash = '') {
         this.nonce = 0;
         this.index = index;
-        this.time = time;
         this.data = data;
         this.previousHash = previousHash;
         this.hash = this.createHash();
+        console.log("new blockn created with: ");
+        console.log(`Block ${index}:`);
+        console.log(`  Index: ${index}`);
+        console.log(`  Data: ${data}`);
+        console.log(`  Previous Hash: ${previousHash}`);
+        console.log();
     }
     createHash() {
         //creates a hash of the block
         let formattedIndex = this.index.toString();
-        return crypto.createHash('md5').update(formattedIndex + this.previousHash + this.time + this.data + this.nonce).digest('hex').toString();
+        return crypto.createHash('md5').update(formattedIndex + this.previousHash + this.data + this.nonce).digest('hex').toString();
     }
     mineBlock(numZeroes) {
         while (this.hash.substring(0, numZeroes) !== Array(numZeroes + 1).join("0")) {

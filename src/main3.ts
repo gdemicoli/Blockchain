@@ -7,41 +7,21 @@ import * as crypto from 'crypto';
 import { modPow } from 'bigint-crypto-utils';
 
 //helper function to create an inventory and its t value
-function createInventoryWithSignature(id: number, quantity: number, price: number, name: string, randSeed?: number) {
-    
-    // 4. FIX ME remove rand int seed and get rid of if else block
+function createInventoryWithSignature(id: number, quantity: number, price: number, name: string, ) {
 
-    if(randSeed !== undefined) {
-        const inventory = new Inventory(id, quantity, price, name);
-        let signature = new IdentityDigitalSignature(PKG.addSigner(id), PKG.getE(), PKG.getN(), randSeed)
-        const blockchain = new Blockchain();
-
-        return { inventory, signature, blockchain };
-
-        
-    }
-    else {
         const inventory = new Inventory(id, quantity, price, name);
         let signature = new IdentityDigitalSignature(PKG.addSigner(id), PKG.getE(), PKG.getN())
         const blockchain = new Blockchain();
 
+        console.log("inventory " + inventory.getLocation())
+
+        console.log("Values of each block in the chain at this point: ")
+
+        blockchain.printChain()
+
         return { inventory, signature, blockchain };
-        
-    }
-
-
-    
 }
 
-//function to sign a message by the signing inventory
-// function signMessage(inventory: Inventory, signingSignature: IdentityDigitalSignature) {
-
-
-//     let message: string = inventory.getAll();
-//     let signedMessage = signingSignature.signMessage(message);
-//     let publicKey = signingSignature.getPublicKey();
-//     return { message, signedMessage, publicKey };
-// }
 
 // functino to add verified message to the block chain
 function addToBlockChains(blockchains:Blockchain [], message: string) {
@@ -60,6 +40,12 @@ function consensusCheck(inventories: { inventory: Inventory; signature: Identity
     let scenario = document.getElementById("scenario")
     
     
+    for(let i: number = 0; i < inventories.length; i++ ){
+        console.log("Inventory " + inventories[i].inventory.getLocation() + "'s nonce value is: " + inventories[i].blockchain.chain[inventories[i].blockchain.chain.length-1].nonce)
+        
+            
+    }
+
 // Consensus 
     for(let i: number = 0; i < inventories.length; i++ ){
         nonceArray.push("Inventory " + inventories[i].inventory.getLocation() + "'s nonce value is: " + inventories[i].blockchain.chain[inventories[i].blockchain.chain.length-1].nonce)
@@ -88,100 +74,28 @@ function consensusCheck(inventories: { inventory: Inventory; signature: Identity
 
 }
 
-// Helper function for initial inventories
-// function signVerifyAndAddToChains(inventories: { inventory: Inventory; signature: IdentityDigitalSignature; blockchain: Blockchain }[],
-//      signee: { inventory: Inventory; signature: IdentityDigitalSignature; blockchain: Blockchain }) {
-//     // 1: Inventory D signs the message
-//     let { message, signedMessage, publicKey } = signMessage(signee.inventory, signee.signature);
 
-    
-    
-//     let olScenario = document.createElement("ol");
-//     let signingHTML = "Inventory " + signee.inventory.getLocation() + " concatenates their inventory information " + signee.inventory.getAll();
-//     let signingHTML2 = "The messaged is hashed in md5: " + signee.signature.hash
-//     let signingHTML21 = "The message is turned into a big int value (not a decimal conversion, but is a unique value and can be used for calculation)" 
-//     let signingHTML22 = "The big int value of the message is: " + BigInt('0x' + signee.signature.hash) 
-//     let signingHTML3 = "Then the message is signed using m^d mod(n)"
-//     let signingHTML4 = "The signed message: " + signedMessage
-    
-//     let unsignHTML = "The other inventories each verify the message using s^e mod(n):"
-
-//     // 2: Other inventories verify the signed message
-//     let otherInventories = inventories.filter(inv => inv !== signee);
-    
-//     // Array of blockchains that accept then signature
-//     let acceptedBlockchains: Blockchain[] =[]
-    
-
-//         otherInventories.forEach((recipient) => {
-//             if(recipient.signature.verifySignature(message, signedMessage, publicKey.e, publicKey.n)){
-//                 unsignHTML += "\n Inventory " + recipient.inventory.getLocation() + " has verified the signature."
-//                 acceptedBlockchains.push(recipient.blockchain)
-
-//             }
-//             else {
-//                 unsignHTML += "\n Inventory " + recipient.inventory.getLocation() + "could not verify the signature."
-//             }    
-//         })
-
-//     acceptedBlockchains.push(signee.blockchain)
-
-    
-
-    
-//     addToBlockChains(acceptedBlockchains, message);
-
-//     let unsignHTML2 = "If the signature is successfully verified they add it to their ledger."
-
-//     let liScenario = document.createElement("ol");
-//     let liScenario2 = document.createElement("ol");
-//     let liScenario21 = document.createElement("ol");
-//     let liScenario22 = document.createElement("ol");
-//     let liScenario3 = document.createElement("ol");
-//     let liScenario4 = document.createElement("ol");
-//     let liScenario5 = document.createElement("ol");
-//     let liScenario6 = document.createElement("ol");
-
-//     liScenario.textContent = signingHTML
-//     liScenario2.textContent = signingHTML2
-//     liScenario21.textContent = signingHTML21
-//     liScenario22.textContent = signingHTML22
-//     liScenario3.textContent = signingHTML3
-//     liScenario4.textContent = signingHTML4
-//     liScenario5.textContent = unsignHTML
-//     liScenario6.textContent = unsignHTML2
-
-//     olScenario.appendChild(liScenario)
-//     olScenario.appendChild(liScenario2)
-//     olScenario.appendChild(liScenario21)
-//     olScenario.appendChild(liScenario22)
-//     olScenario.appendChild(liScenario3)
-//     olScenario.appendChild(liScenario4)
-//     olScenario.appendChild(liScenario5)
-//     olScenario.appendChild(liScenario6)
-
-//     scenario?.appendChild(olScenario)
-
-    
-
-// }
 
 
 //START HERE
 async function printInventoryDetails(inventories: {inventory: Inventory, signature: IdentityDigitalSignature, blockchain: Blockchain} []) {
     
+    console.log("Consensus check 1")
+    consensusCheck(inventories)
     let tAggregate = PKG.computeAggregateT()
+    let blockchains: Blockchain[] =[]
 
+                
     
     
 
-    console.log("agregate t value: " + tAggregate)
-
+    
     let scenario = document.getElementById("scenario")
     scenario!.textContent = "Inventory initialisation"
     
     // 5. individual signature generation
     for(let i: number =0; i < inventories.length; i++) {
+        
 
         
         let invList = document.createElement("ul")
@@ -235,6 +149,17 @@ async function printInventoryDetails(inventories: {inventory: Inventory, signatu
 
     for(let i = 0; i < inventories.length; i++){
 
+        
+
+        let blockchains: Blockchain[] =[]
+
+                inventories.forEach(Element => {
+                    blockchains.push(Element.blockchain)
+                });
+                
+                let longestChain = findLongestChain(blockchains).chain.length
+
+
         let signatures :bigint[] =[]
 
         let inventoriesSign = document.createElement("div")
@@ -244,8 +169,9 @@ async function printInventoryDetails(inventories: {inventory: Inventory, signatu
         let mSInfo = document.createElement("li")
         let mSInfo2 = document.createElement("li")
 
-        mSInfo.textContent = "Inventory "+ inventories[i].inventory.getLocation() + " sends its information conatenated to all the other inventories"
+        mSInfo.textContent = "Inventory "+ inventories[i].inventory.getLocation() + " sends its information conatenated to all the other inventories "
         mSInfo2.textContent = "The other inventories use it to sign and verify"
+        
 
         messageSigning.appendChild(mSInfo)
         messageSigning.appendChild(mSInfo2)
@@ -270,9 +196,185 @@ async function printInventoryDetails(inventories: {inventory: Inventory, signatu
 
             liSCalculation.textContent =  "Then inventory " + inventories[j].inventory.getLocation() + 
                 " calculates g * r ^ H(t,m) mod(n)"
+
+            
                 
+                let signedMessage = await inventories[j].signature.signMessage(longestChain+ inventories[i].inventory.getAll(), tAggregate)
                 
-                let signedMessage = await inventories[j].signature.signMessage(inventories[i].inventory.getAll(), tAggregate)
+                signatures.push(signedMessage)
+
+                liSCalculation2.textContent = "Which is: " + inventories[j].signature.getG() + " * " + inventories[j].signature.getRvalue() + " ^ " + inventories[j].signature.getHash() +
+                " mod " + inventories[j].signature.getN()
+
+                liSValue.textContent = "s value: " + signedMessage
+
+                liSValue2.textContent = "Inventory " + inventories[j].inventory.getLocation() + " sends the signature to all the other inventories"
+
+                inventoriesSigning.appendChild(liSCalculation)
+                inventoriesSigning.appendChild(liSCalculation2)
+                inventoriesSigning.appendChild(liSValue)
+                inventoriesSigning.appendChild(liSValue2)
+                individualSigning.appendChild(inventoriesSigning)
+        }
+
+        // 6. multi sig generation
+        invContent.textContent = "";
+
+        let signingDetails = document.createElement("div")
+            signingDetails.textContent = "Multi Signature Generation"
+
+        for (let k =0; k < inventories.length; k++) {
+            
+            let multiSigInfo = document.createElement("ol")
+
+            multiSigInfo.textContent = "Inventory " + inventories[k].inventory.getLocation()
+
+            let liMSG = document.createElement("li")
+            let liMSG2 = document.createElement("li")
+            let liMSG3 = document.createElement("li")
+
+            let multiSig:bigint = inventories[k].signature.findMultiSig(signatures)
+
+            liMSG.textContent = "After inventory " + inventories[k].inventory.getLocation() + " recieves all of the signatures it computes their product, let that be j"
+            liMSG2.textContent = "Then they compute: j mod n = mSig"
+            liMSG3.textContent = "mSig = " + multiSig
+
+            multiSigInfo.appendChild(liMSG)
+            multiSigInfo.appendChild(liMSG2)
+            multiSigInfo.appendChild(liMSG3)
+
+            signingDetails.appendChild(multiSigInfo)
+            inventoriesSign.appendChild(signingDetails)
+        }
+
+        // 7. verification & consensus
+        let verificationDetails = document.createElement("div")
+        verificationDetails.textContent = "Verification & Consensus"
+
+        inventoriesSign?.appendChild(verificationDetails)
+        
+        let validated 
+    //FINISH ME SIGNATURE VALIDATION FOR EACH INVENTORY
+        for (let l = 0; l< inventories.length; l++) {
+
+            let verificationList = document.createElement("ol")
+            verificationList.textContent = "Inventory " + inventories[l].inventory.getLocation()
+
+            let liVer = document.createElement("li")
+            let liVer2 = document.createElement("li")
+            let liVer3 = document.createElement("li")
+            let liVer4 = document.createElement("li")
+
+            liVer.textContent = "To get consensus and perform verification inventory " + inventories[l].inventory.getLocation() +
+            "has to calculate s^e mod n = x"
+            liVer2.textContent = "Which is: " + inventories[l].signature.getMultiSig() + " ^ " + inventories[l].signature.getE() + " mod " + inventories[l].signature.getN()
+            liVer3. textContent = "Then inventory " + inventories[l].inventory.getLocation() + " has to calculate the product of all the ids of the inventories in the system let that = i"
+            liVer4.textContent = "Then calculate i * t ^H(t,m) mod n"
+            
+            let confirmation = document.createElement("li")
+
+            //Validation
+            if (inventories[l].signature.sigValidation(PKG.getIDs(), PKG.getAggregateT())){
+                confirmation.textContent = "Inventory " + inventories[l].inventory.getLocation() + " successfully validated and reached consensus. Inventory " + 
+                inventories[l].inventory.getLocation() + " adds the record to their blockchain"
+
+                
+
+                console.log("inventory: " + inventories[l].inventory.getLocation() + " chain length is " + inventories[l].blockchain.chain.length)
+                inventories[l].blockchain.addBlock(new Block(longestChain, inventories[i].inventory.getAll()))
+
+                console.log("inventory: " +inventories[l].inventory.getLocation() + " places into its block chain " + longestChain + inventories[i].inventory.getAll())
+                console.log("inventory: " + inventories[l].inventory.getLocation() + "s blockchain is updated")
+                
+                console.log("Values of each block in the chain at this point: ")
+
+                inventories[l].blockchain.printChain()
+
+                
+
+            }
+            else {
+                confirmation.textContent = "Inventory " + inventories[l].inventory.getLocation() +" couldn't verify and reach consensus. "
+            }
+
+
+            
+            
+
+
+            verificationList.appendChild(liVer)
+            verificationList.appendChild(liVer2)
+            verificationList.appendChild(liVer3)
+            verificationList.appendChild(liVer4)
+            verificationList.appendChild(confirmation)
+
+            verificationDetails.appendChild(verificationList)
+
+
+
+
+        }
+        
+    }
+    //retrieves consensus
+    consensusCheck(inventories)
+}
+
+
+async function printSingleProcess(inventories: {inventory: Inventory, signature: IdentityDigitalSignature, blockchain: Blockchain} [], 
+    updatedInv: {inventory: Inventory, signature: IdentityDigitalSignature, blockchain: Blockchain}) {
+        
+        let blockchains: Blockchain[] =[]
+
+                inventories.forEach(Element => {
+                    blockchains.push(Element.blockchain)
+                });
+                
+                let longestChain = findLongestChain(blockchains).chain.length
+
+        
+        let scenario = document.getElementById("scenario")
+    
+        let tAggregate = PKG.computeAggregateT()
+        let signatures :bigint[] =[]
+
+        let inventoriesSign = document.createElement("div")
+        inventoriesSign.innerHTML = "<strong>Inventory " + updatedInv.inventory.getLocation() + "s message signing & verification</strong>"
+
+        let messageSigning = document.createElement("ol")
+        let mSInfo = document.createElement("li")
+        let mSInfo2 = document.createElement("li")
+
+        mSInfo.textContent = "Inventory "+ updatedInv.inventory.getLocation() + " sends its information conatenated to all the other inventories "
+        mSInfo2.textContent = "The other inventories use it to sign and verify"
+        
+
+        messageSigning.appendChild(mSInfo)
+        messageSigning.appendChild(mSInfo2)
+        inventoriesSign.appendChild(messageSigning)
+
+        scenario?.appendChild(inventoriesSign)
+
+        let individualSigning = document.createElement("div")
+        individualSigning.textContent = "Individual signing by each inventory"
+        inventoriesSign.appendChild(individualSigning)
+
+
+        for(let j =0; j < inventories.length; j++){
+            
+            let inventoriesSigning = document.createElement("ol")
+            inventoriesSigning.textContent = "Inventory " + inventories[j].inventory.getLocation()
+
+            let liSCalculation = document.createElement("li")
+            let liSCalculation2 = document.createElement("li")
+            let liSValue = document.createElement("li")
+            let liSValue2 = document.createElement("li")
+
+            liSCalculation.textContent =  "Then inventory " + inventories[j].inventory.getLocation() + 
+                " calculates g * r ^ H(t,m) mod(n)"
+
+            
+                let signedMessage = await inventories[j].signature.signMessage(longestChain+ updatedInv.inventory.getAll(), tAggregate)
                 
                 signatures.push(signedMessage)
 
@@ -345,12 +447,21 @@ async function printInventoryDetails(inventories: {inventory: Inventory, signatu
             
             let confirmation = document.createElement("li")
 
+            //Concensus & validation, all inventories must have signed for the sig validation to return true, hence it is added.
+            //as for consensus will still need to implement POW to ensure that everyone has the same chain
             if (inventories[l].signature.sigValidation(PKG.getIDs(), PKG.getAggregateT())){
-                confirmation.textContent = "Inventory " + inventories[l].inventory.getLocation() + " successfully validated and reached consensus"
+                confirmation.textContent = "Inventory " + inventories[l].inventory.getLocation() + " successfully validated and reached consensus. Inventory " + 
+                inventories[l].inventory.getLocation() + " adds the record to their blockchain"
+
+                console.log("inventory: " + inventories[l].inventory.getLocation() + " chain length is " + inventories[l].blockchain.chain[inventories[l].blockchain.chain.length - 1])
+
+                console.log("inventory: " + inventories[l].inventory.getLocation() + "s blockchain is updated")
+                inventories[l].blockchain.addBlock(new Block(longestChain, updatedInv.inventory.getAll()))
+                console.log("inventory: " + inventories[l].inventory.getLocation() + "s length of chain is " + inventories[l].blockchain.chain.length)
 
             }
             else {
-                confirmation.textContent = "Inventory " + inventories[l].inventory.getLocation() +" couldn't verify and reach consensus. Do not panic, back yourself!"
+                confirmation.textContent = "Inventory " + inventories[l].inventory.getLocation() +" couldn't verify and reach consensus. "
             }
 
 
@@ -370,69 +481,9 @@ async function printInventoryDetails(inventories: {inventory: Inventory, signatu
 
         }
         
-    }
-
+        console.log(consensusCheck(inventories))
+        
 }
-
-// function printProcess(inventories: {inventory: Inventory, signature: IdentityDigitalSignature, blockchain: Blockchain} []) {
-
-//     const signAndVerify = document.createElement("h4")
-
-//     // start adding in html for scenario
-//     signAndVerify.textContent = "Example Scenario:";
-
-//     // 3: If valid, add block to all blockchains
-//     for( let i = 0; i < inventories.length; i++) {
-        
-//         signVerifyAndAddToChains(inventories, inventories[i])
-
-//             console.log("All inventories verify signature!")
-
-            
-//             if (consensusCheck(inventories)) {
-//                 console.log("Consensus reached!")
-        
-//             }
-//             else {
-//                 console.log("Consensus failed!")
-//             }
-        
-//     }
-// }
-
-// function printSingleProcess(inventories: {inventory: Inventory, signature: IdentityDigitalSignature, blockchain: Blockchain} []) {
-
-//     let updatedInventory: {inventory: Inventory, signature: IdentityDigitalSignature, blockchain: Blockchain }
-//     let highestID = 0
-
-//     for(let i = 0; i < inventories.length; i++) {
-//         if(highestID < inventories[i].inventory.getId()){
-//             highestID = inventories[i].inventory.getId()
-//             updatedInventory = inventories[i]
-           
-//         }
-//     }
-    
-        
-//         signVerifyAndAddToChains(inventories, updatedInventory!)
-
-//         console.log("The n value of " + updatedInventory!.inventory.getLocation() + " is: " + updatedInventory!.signature.getPublicKey().n)
-//         console.log("The e value of " + updatedInventory!.inventory.getLocation() + " is: " + updatedInventory!.signature.getPublicKey().e)
-//         console.log("The d value of "  + updatedInventory!.inventory.getLocation() + " is: " + updatedInventory!.signature.getPrivateKey().d)
-    
-
-//             console.log("All inventories verify signature!")
-
-            
-//             if (consensusCheck(inventories)) {
-//                 console.log("Consensus reached!")
-        
-//             }
-//             else {
-//                 console.log("Consensus failed!")
-//             }
-        
-// }
 function findLongestChain(blockchains: Blockchain[]): Blockchain {
     return blockchains.reduce((longest, current) => {
         return current.chain.length > longest.chain.length ? current : longest;
@@ -462,9 +513,9 @@ await new Promise<void>(resolve => setTimeout(resolve, 5000));
 // 2. create inventories & thier t values
 console.log("Script (main) is running");
 let inventories = [
-    createInventoryWithSignature(3231265, 32, 120, "D", 0), //A on lab sheet
-    createInventoryWithSignature(5342532, 20, 230, "C", 1),
-    createInventoryWithSignature(4526377, 22, 150, "B", 2),
+    createInventoryWithSignature(3231265, 32, 120, "D"), 
+    createInventoryWithSignature(5342532, 20, 230, "C"),
+    createInventoryWithSignature(4526377, 22, 150, "B"),
     // createInventoryWithSignature(514539878, 12, 400, "A")
     
     
@@ -506,7 +557,7 @@ let scenario = document.getElementById("scenario") as HTMLElement
 
     inventories.forEach(inventory => {
 
-        console.log("t value: " + inventory.signature.getTvalue().toString())
+        
 
         PKG.addTValue(inventory.signature.getTvalue())
         
@@ -587,14 +638,7 @@ form.addEventListener("submit", async (event) => {
     let price: number = parseFloat(priceInput.value)
     let location = locationInput.value;
 
-    let id = 0
-
-    for(let i = 0; i < inventories.length; i++) {
-        if(inventories[i].inventory.getId() >= id) {
-            id = inventories[i].inventory.getId() + 1
-        }
-
-    }
+    
 
     if (isNaN(quantity) || isNaN(price)) {
         alert("Please enter a valid number for Quantity and Price.");
@@ -608,12 +652,13 @@ form.addEventListener("submit", async (event) => {
     }
 
 
-
+    let updatedInv: {inventory: Inventory, signature: IdentityDigitalSignature, blockchain: Blockchain }
     for(let i = 0; i < inventories.length; i++) {
         if(location === inventories[i].inventory.getLocation()){
-            inventories[i].inventory.updateId(id)
+
             inventories[i].inventory.updatePrice(price)
             inventories[i].inventory.updateQuantity(quantity)
+            updatedInv = inventories[i]
 
             
         }
@@ -629,7 +674,7 @@ form.addEventListener("submit", async (event) => {
 
     // printInventoryDetails(inventories)
     
-    // printSingleProcess(inventories)
+    printSingleProcess(inventories, updatedInv!)
 
     console.log("Length of inventory A's chain: " + inventories[3].blockchain.chain.length + " (including genesis block)")
 

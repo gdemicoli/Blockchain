@@ -53,9 +53,21 @@ export class Blockchain {
 
         return true;
     }
+
+    printChain() {
+        this.chain.forEach((block, index) => {
+            console.log(`Block ${index}:`);
+            console.log(`  Index: ${block.index}`);
+            console.log(`  Data: ${block.data}`);
+            console.log(`  Previous Hash: ${block.previousHash}`);
+            console.log(`  Hash: ${block.hash}`);
+            console.log(`  Nonce: ${block.nonce}`);
+            console.log();
+        });
+    }
 }
 
-let testChain = new Blockchain();
+
 
 
 // console.log("Mining first block...")
