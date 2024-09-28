@@ -48,7 +48,6 @@ function consensusCheck(inventories: { inventory: Inventory; signature: Identity
 
 // Consensus 
     for(let i: number = 0; i < inventories.length; i++ ){
-        nonceArray.push("Inventory " + inventories[i].inventory.getLocation() + "'s nonce value is: " + inventories[i].blockchain.chain[inventories[i].blockchain.chain.length-1].nonce)
         
         if(inventories[i].blockchain.chain[inventories[i].blockchain.chain.length-1].nonce !==
              inventories[0].blockchain.chain[inventories[0].blockchain.chain.length-1].nonce)
@@ -57,19 +56,7 @@ function consensusCheck(inventories: { inventory: Inventory; signature: Identity
             }
             
     }
-
-    let ol: Node
-    nonceArray.forEach(element => { 
-        
-        ol = document.createElement("ol")
-        ol.textContent = element
-        scenario?.appendChild(ol)
-        
-    });
-
     
-
-
     return consensus
 
 }
@@ -169,7 +156,7 @@ async function printInventoryDetails(inventories: {inventory: Inventory, signatu
         let mSInfo = document.createElement("li")
         let mSInfo2 = document.createElement("li")
 
-        mSInfo.textContent = "Inventory "+ inventories[i].inventory.getLocation() + " sends its information conatenated to all the other inventories "
+        mSInfo.textContent = "Inventory "+ inventories[i].inventory.getLocation() + " sends its information conatenated to all the other inventories " + inventories[i].inventory.getAll()
         mSInfo2.textContent = "The other inventories use it to sign and verify"
         
 
@@ -275,7 +262,7 @@ async function printInventoryDetails(inventories: {inventory: Inventory, signatu
 
             //Validation
             if (inventories[l].signature.sigValidation(PKG.getIDs(), PKG.getAggregateT())){
-                confirmation.textContent = "Inventory " + inventories[l].inventory.getLocation() + " successfully validated and reached consensus. Inventory " + 
+                confirmation.textContent = "Inventory " + inventories[l].inventory.getLocation() + " successfully validated. Inventory " + 
                 inventories[l].inventory.getLocation() + " adds the record to their blockchain"
 
                 
@@ -298,10 +285,6 @@ async function printInventoryDetails(inventories: {inventory: Inventory, signatu
             }
 
 
-            
-            
-
-
             verificationList.appendChild(liVer)
             verificationList.appendChild(liVer2)
             verificationList.appendChild(liVer3)
@@ -309,15 +292,48 @@ async function printInventoryDetails(inventories: {inventory: Inventory, signatu
             verificationList.appendChild(confirmation)
 
             verificationDetails.appendChild(verificationList)
-
-
-
-
         }
+        
+        consensusCheck(inventories)
+            let nonceArray: string[] = []
+
+            let consensusDiv = document.createElement("div")
+            let consensusOl = document.createElement("ol")
+            let liCon = document.createElement("li")
+            let liCon2 = document.createElement("li")
+
+            liCon.textContent = "Each inventory calculates the POW nonce value"
+            liCon2.textContent = "They then compare them to ensure consensus is reached"
+            for(let i: number = 0; i < inventories.length; i++ ){
+                nonceArray.push("Inventory " + inventories[i].inventory.getLocation() + "'s nonce value is: " + inventories[i].blockchain.chain[inventories[i].blockchain.chain.length-1].nonce)
+                
+                    
+            }
+            consensusOl.appendChild(liCon)
+            consensusOl.appendChild(liCon2)
+
+
+            let li: Node
+            nonceArray.forEach(element => { 
+                
+                li = document.createElement("li")
+                li.textContent = element
+                consensusOl?.appendChild(li)
+                
+            });
+            
+            let liCon3 = document.createElement("li")
+            liCon3.textContent = "Consensus has been reached: " + consensusCheck(inventories)
+            consensusOl.appendChild(liCon3)
+
+            consensusDiv.appendChild(consensusOl)
+
+            verificationDetails.appendChild(consensusDiv)
+            
         
     }
     //retrieves consensus
-    consensusCheck(inventories)
+   
 }
 
 
@@ -345,7 +361,7 @@ async function printSingleProcess(inventories: {inventory: Inventory, signature:
         let mSInfo = document.createElement("li")
         let mSInfo2 = document.createElement("li")
 
-        mSInfo.textContent = "Inventory "+ updatedInv.inventory.getLocation() + " sends its information conatenated to all the other inventories "
+        mSInfo.textContent = "Inventory "+ updatedInv.inventory.getLocation() + " sends its information conatenated to all the other inventories " + updatedInv.inventory.getAll()
         mSInfo2.textContent = "The other inventories use it to sign and verify"
         
 
@@ -480,8 +496,43 @@ async function printSingleProcess(inventories: {inventory: Inventory, signature:
 
 
         }
+        consensusCheck(inventories)
+            let nonceArray: string[] = []
+
+            let consensusDiv = document.createElement("div")
+            let consensusOl = document.createElement("ol")
+            let liCon = document.createElement("li")
+            let liCon2 = document.createElement("li")
+
+            liCon.textContent = "Each inventory calculates the POW nonce value"
+            liCon2.textContent = "They then compare them to ensure consensus is reached"
+            for(let i: number = 0; i < inventories.length; i++ ){
+                nonceArray.push("Inventory " + inventories[i].inventory.getLocation() + "'s nonce value is: " + inventories[i].blockchain.chain[inventories[i].blockchain.chain.length-1].nonce)
+                
+                    
+            }
+            consensusOl.appendChild(liCon)
+            consensusOl.appendChild(liCon2)
+
+
+            let li: Node
+            nonceArray.forEach(element => { 
+                
+                li = document.createElement("li")
+                li.textContent = element
+                consensusOl?.appendChild(li)
+                
+            });
+            
+            let liCon3 = document.createElement("li")
+            liCon3.textContent = "Consensus has been reached: " + consensusCheck(inventories)
+            consensusOl.appendChild(liCon3)
+
+            consensusDiv.appendChild(consensusOl)
+
+            verificationDetails.appendChild(consensusDiv)
         
-        console.log(consensusCheck(inventories))
+        
         
 }
 function findLongestChain(blockchains: Blockchain[]): Blockchain {
@@ -516,7 +567,7 @@ let inventories = [
     createInventoryWithSignature(3231265, 32, 120, "D"), 
     createInventoryWithSignature(5342532, 20, 230, "C"),
     createInventoryWithSignature(4526377, 22, 150, "B"),
-    // createInventoryWithSignature(514539878, 12, 400, "A")
+    createInventoryWithSignature(514539878, 12, 400, "A")
     
     
 ];
