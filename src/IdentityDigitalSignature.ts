@@ -62,14 +62,7 @@ export class IdentityDigitalSignature{
 
     public async signMessage(message: string, tAggregate: bigint): Promise<bigint> {
         //hashes message and transforms it into a big int
-        // this.hashTM = this.stringToMD5BigInt(tAggregate + message);
-
-        // // console.log("Hash TM: " + this.hashTM)
-
-        // this.hashTM = (tAggregate+ BigInt(10))
-
-        // FIX ME 6 REMOVE HARDCODED HASH VALUE if everything works suspected issue probably lies here with hash to big int conversion
-        this.hashTM = 291695778141170921277911006969911971888n
+        this.hashTM = this.stringToMD5BigInt(tAggregate + message);
 
         // finding s value (Truly humble under god)
         this.sValue = (this.privateKeyG % this.publicKeyN) * modPow(this.randInt, this.hashTM, this.publicKeyN) % this.publicKeyN;

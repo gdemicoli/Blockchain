@@ -173,14 +173,17 @@ async function printInventoryDetails(inventories: {inventory: Inventory, signatu
     let tAggregate = PKG.computeAggregateT()
 
     
-    let signatures :bigint[] =[]
+    
 
     console.log("agregate t value: " + tAggregate)
 
     let scenario = document.getElementById("scenario")
+    scenario!.textContent = "Inventory initialisation"
     
     // 5. individual signature generation
     for(let i: number =0; i < inventories.length; i++) {
+
+        
         let invList = document.createElement("ul")
         invList.textContent = "Inventory " + inventories[i].inventory.getLocation()
         inventoryDiv.appendChild(invList)
@@ -199,10 +202,7 @@ async function printInventoryDetails(inventories: {inventory: Inventory, signatu
         let liTValueInfo = document.createElement("li")
         let liJCalculation = document.createElement("li")
         let liJ2Calculation = document.createElement("li")
-        let liSCalculation = document.createElement("li")
-        let liSCalculation2 = document.createElement("li")
-        let liSValue = document.createElement("li")
-        let liSValue2 = document.createElement("li")
+       
         
         
 
@@ -218,20 +218,7 @@ async function printInventoryDetails(inventories: {inventory: Inventory, signatu
         liJCalculation.textContent =  "Once all t values have been sent and recieved inventory " +
         inventories[i].inventory.getLocation() + " computes the aggregate t value by multiplying all the t values together, let that = j."
         liJ2Calculation.textContent = "Then computing j mod(n) = aT"
-        liSCalculation.textContent =  "Then inventory " + inventories[i].inventory.getLocation() + 
-        " calculates g * r ^ H(t,m) mod(n)"
         
-        
-        let signedMessage = await inventories[i].signature.signMessage(inventories[i].inventory.getAll(), tAggregate)
-        
-        signatures.push(signedMessage)
-
-        liSCalculation2.textContent = "Which is: " + inventories[i].signature.getG() + " * " + inventories[i].signature.getRvalue() + " ^ " + inventories[i].signature.getHash() +
-        " mod " + inventories[i].signature.getN()
-
-        liSValue.textContent = "s value: " + signedMessage
-
-        liSValue2.textContent = "Inventory " + inventories[i].inventory.getLocation() + " sends the signature to all the other inventories"
 
         invList.appendChild(liDetails)
         invList.appendChild(liRvalue)
@@ -241,93 +228,148 @@ async function printInventoryDetails(inventories: {inventory: Inventory, signatu
         invList.appendChild(liTValueInfo)
         invList.appendChild(liJCalculation)
         invList.appendChild(liJ2Calculation)
-        invList.appendChild(liSCalculation)
-        invList.appendChild(liSCalculation2)
-        invList.appendChild(liSValue)
-        invList.appendChild(liSValue2)
+        
         scenario?.appendChild(invList)
 
     }
 
+    for(let i = 0; i < inventories.length; i++){
+
+        let signatures :bigint[] =[]
+
+        let inventoriesSign = document.createElement("div")
+        inventoriesSign.innerHTML = "<strong>Inventory " + inventories[i].inventory.getLocation() + "s message signing & verification</strong>"
+
+        let messageSigning = document.createElement("ol")
+        let mSInfo = document.createElement("li")
+        let mSInfo2 = document.createElement("li")
+
+        mSInfo.textContent = "Inventory "+ inventories[i].inventory.getLocation() + " sends its information conatenated to all the other inventories"
+        mSInfo2.textContent = "The other inventories use it to sign and verify"
+
+        messageSigning.appendChild(mSInfo)
+        messageSigning.appendChild(mSInfo2)
+        inventoriesSign.appendChild(messageSigning)
+
+        scenario?.appendChild(inventoriesSign)
+
+        let individualSigning = document.createElement("div")
+        individualSigning.textContent = "Individual signing by each inventory"
+        inventoriesSign.appendChild(individualSigning)
 
 
-    // 6. multi sig generation
-    invContent.textContent = "";
+        for(let j =0; j < inventories.length; j++){
+            
+            let inventoriesSigning = document.createElement("ol")
+            inventoriesSigning.textContent = "Inventory " + inventories[j].inventory.getLocation()
 
-    let signingDetails = document.createElement("div")
-        signingDetails.textContent = "Multi Signature Generation"
+            let liSCalculation = document.createElement("li")
+            let liSCalculation2 = document.createElement("li")
+            let liSValue = document.createElement("li")
+            let liSValue2 = document.createElement("li")
 
-    for (let i =0; i < inventories.length; i++) {
-        
-        let multiSigInfo = document.createElement("ol")
+            liSCalculation.textContent =  "Then inventory " + inventories[j].inventory.getLocation() + 
+                " calculates g * r ^ H(t,m) mod(n)"
+                
+                
+                let signedMessage = await inventories[j].signature.signMessage(inventories[i].inventory.getAll(), tAggregate)
+                
+                signatures.push(signedMessage)
 
-        multiSigInfo.textContent = "Inventory " + inventories[i].inventory.getLocation()
+                liSCalculation2.textContent = "Which is: " + inventories[j].signature.getG() + " * " + inventories[j].signature.getRvalue() + " ^ " + inventories[j].signature.getHash() +
+                " mod " + inventories[j].signature.getN()
 
-        let liMSG = document.createElement("li")
-        let liMSG2 = document.createElement("li")
-        let liMSG3 = document.createElement("li")
+                liSValue.textContent = "s value: " + signedMessage
 
-        let multiSig:bigint = inventories[i].signature.findMultiSig(signatures)
+                liSValue2.textContent = "Inventory " + inventories[j].inventory.getLocation() + " sends the signature to all the other inventories"
 
-        liMSG.textContent = "After inventory " + inventories[i].inventory.getLocation() + " recieves all of the signatures it computes their product, let that be j"
-        liMSG2.textContent = "Then they compute: j mod n = mSig"
-        liMSG3.textContent = "mSig = " + multiSig
-
-        multiSigInfo.appendChild(liMSG)
-        multiSigInfo.appendChild(liMSG2)
-        multiSigInfo.appendChild(liMSG3)
-
-        signingDetails.appendChild(multiSigInfo)
-        scenario?.appendChild(signingDetails)
-    }
-
-    // 7. verification & consensus
-    let verificationDetails = document.createElement("div")
-    verificationDetails.textContent = "Verification & Consensus"
-
-    scenario?.appendChild(verificationDetails)
-        
-//FINISH ME SIGNATURE VALIDATION FOR EACH INVENTORY
-    for (let i = 0; i< inventories.length; i++) {
-
-        let verificationList = document.createElement("ol")
-        verificationList.textContent = "Inventory " + inventories[i].inventory.getLocation()
-
-        let liVer = document.createElement("li")
-        let liVer2 = document.createElement("li")
-        let liVer3 = document.createElement("li")
-        let liVer4 = document.createElement("li")
-
-        liVer.textContent = "To get consensus and perform verification inventory " + inventories[i].inventory.getLocation() +
-        "has to calculate s^e mod n = x"
-        liVer2.textContent = "Which is: " + inventories[i].signature.getMultiSig() + " ^ " + inventories[i].signature.getE() + " mod " + inventories[i].signature.getN()
-        liVer3. textContent = "Then inventory " + inventories[i].inventory.getLocation() + " has to calculate the product of all the ids of the inventories in the system let that = i"
-        liVer4.textContent = "Then calculate i * t ^H(t,m) mod n"
-        
-        let confirmation = document.createElement("li")
-
-        if (inventories[i].signature.sigValidation(PKG.getIDs(), PKG.getAggregateT())){
-            confirmation.textContent = "Inventory " + inventories[i].inventory.getLocation() + " successfully validated and reached consensus"
-
-        }
-        else {
-            confirmation.textContent = "Inventory " + inventories[i].inventory.getLocation() +" couldn't verify and reach consensus. Do not panic, back yourself!"
+                inventoriesSigning.appendChild(liSCalculation)
+                inventoriesSigning.appendChild(liSCalculation2)
+                inventoriesSigning.appendChild(liSValue)
+                inventoriesSigning.appendChild(liSValue2)
+                individualSigning.appendChild(inventoriesSigning)
         }
 
+        // 6. multi sig generation
+        invContent.textContent = "";
 
+        let signingDetails = document.createElement("div")
+            signingDetails.textContent = "Multi Signature Generation"
+
+        for (let k =0; k < inventories.length; k++) {
+            
+            let multiSigInfo = document.createElement("ol")
+
+            multiSigInfo.textContent = "Inventory " + inventories[k].inventory.getLocation()
+
+            let liMSG = document.createElement("li")
+            let liMSG2 = document.createElement("li")
+            let liMSG3 = document.createElement("li")
+
+            let multiSig:bigint = inventories[k].signature.findMultiSig(signatures)
+
+            liMSG.textContent = "After inventory " + inventories[k].inventory.getLocation() + " recieves all of the signatures it computes their product, let that be j"
+            liMSG2.textContent = "Then they compute: j mod n = mSig"
+            liMSG3.textContent = "mSig = " + multiSig
+
+            multiSigInfo.appendChild(liMSG)
+            multiSigInfo.appendChild(liMSG2)
+            multiSigInfo.appendChild(liMSG3)
+
+            signingDetails.appendChild(multiSigInfo)
+            inventoriesSign.appendChild(signingDetails)
+        }
+
+        // 7. verification & consensus
+        let verificationDetails = document.createElement("div")
+        verificationDetails.textContent = "Verification & Consensus"
+
+        inventoriesSign?.appendChild(verificationDetails)
+            
+    //FINISH ME SIGNATURE VALIDATION FOR EACH INVENTORY
+        for (let l = 0; l< inventories.length; l++) {
+
+            let verificationList = document.createElement("ol")
+            verificationList.textContent = "Inventory " + inventories[l].inventory.getLocation()
+
+            let liVer = document.createElement("li")
+            let liVer2 = document.createElement("li")
+            let liVer3 = document.createElement("li")
+            let liVer4 = document.createElement("li")
+
+            liVer.textContent = "To get consensus and perform verification inventory " + inventories[l].inventory.getLocation() +
+            "has to calculate s^e mod n = x"
+            liVer2.textContent = "Which is: " + inventories[l].signature.getMultiSig() + " ^ " + inventories[l].signature.getE() + " mod " + inventories[l].signature.getN()
+            liVer3. textContent = "Then inventory " + inventories[l].inventory.getLocation() + " has to calculate the product of all the ids of the inventories in the system let that = i"
+            liVer4.textContent = "Then calculate i * t ^H(t,m) mod n"
+            
+            let confirmation = document.createElement("li")
+
+            if (inventories[l].signature.sigValidation(PKG.getIDs(), PKG.getAggregateT())){
+                confirmation.textContent = "Inventory " + inventories[l].inventory.getLocation() + " successfully validated and reached consensus"
+
+            }
+            else {
+                confirmation.textContent = "Inventory " + inventories[l].inventory.getLocation() +" couldn't verify and reach consensus. Do not panic, back yourself!"
+            }
+
+
+            
+            
+
+
+            verificationList.appendChild(liVer)
+            verificationList.appendChild(liVer2)
+            verificationList.appendChild(liVer3)
+            verificationList.appendChild(liVer4)
+            verificationList.appendChild(confirmation)
+
+            verificationDetails.appendChild(verificationList)
+
+
+
+        }
         
-        
-
-
-        verificationList.appendChild(liVer)
-        verificationList.appendChild(liVer2)
-        verificationList.appendChild(liVer3)
-        verificationList.appendChild(liVer4)
-        verificationList.appendChild(confirmation)
-
-        verificationDetails.appendChild(verificationList)
-
-
     }
 
 }
