@@ -50,6 +50,8 @@ export class IdentityDigitalSignature{
         //hashes message and transforms it into a big int
         this.hashTM = this.stringToMD5BigInt(tAggregate + message);
 
+        
+
         // finding s value (Truly humble under god)
         this.sValue = (this.privateKeyG % this.publicKeyN) * modPow(this.randInt, this.hashTM, this.publicKeyN) % this.publicKeyN;
 
@@ -57,7 +59,7 @@ export class IdentityDigitalSignature{
         
     }
 
-    private stringToMD5BigInt(message: string): bigint {
+    public stringToMD5BigInt(message: string): bigint {
         // generates MD5 hash
         
         let hash = crypto.createHash('md5').update(message).digest('hex');
@@ -78,6 +80,8 @@ export class IdentityDigitalSignature{
             productSigs = productSigs * signature
             
         });
+
+        
 
         this.multiSig = modPow (productSigs, 1, this.publicKeyN)
 

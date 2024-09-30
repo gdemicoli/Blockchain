@@ -42,9 +42,9 @@ export class Inventory{
 
     getAll(): string {
         // combine all to hashable string
-        let formattedId: string = this.id.toString().padStart(3, '0');
+        let info: string = ""
 
-        return formattedId + this.quantity + this.price + this.location
+        return  info + this.quantity + this.price + this.location
 
     }
 

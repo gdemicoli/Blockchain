@@ -13,23 +13,13 @@ function createInventoryWithSignature(id: number, quantity: number, price: numbe
         let signature = new IdentityDigitalSignature(PKG.addSigner(id), PKG.getE(), PKG.getN())
         const blockchain = new Blockchain();
 
-        console.log("inventory " + inventory.getLocation())
-
-        console.log("Values of each block in the chain at this point: ")
+        
 
         blockchain.printChain()
 
         return { inventory, signature, blockchain };
 }
 
-
-// functino to add verified message to the block chain
-function addToBlockChains(blockchains:Blockchain [], message: string) {
-    let currentDate = new Date().toLocaleDateString('en-AU');
-    blockchains.forEach(blockchain => {
-        blockchain.addBlock(new Block(blockchain.chain.length, currentDate, message));
-    });
-}
 
 // Functino to check for consensus across block chains
 function consensusCheck(inventories: { inventory: Inventory; signature: IdentityDigitalSignature; blockchain: Blockchain }[]): boolean {
@@ -40,11 +30,7 @@ function consensusCheck(inventories: { inventory: Inventory; signature: Identity
     let scenario = document.getElementById("scenario")
     
     
-    for(let i: number = 0; i < inventories.length; i++ ){
-        console.log("Inventory " + inventories[i].inventory.getLocation() + "'s nonce value is: " + inventories[i].blockchain.chain[inventories[i].blockchain.chain.length-1].nonce)
-        
-            
-    }
+    
 
 // Consensus 
     for(let i: number = 0; i < inventories.length; i++ ){
@@ -156,7 +142,8 @@ async function printInventoryDetails(inventories: {inventory: Inventory, signatu
         let mSInfo = document.createElement("li")
         let mSInfo2 = document.createElement("li")
 
-        mSInfo.textContent = "Inventory "+ inventories[i].inventory.getLocation() + " sends its information conatenated to all the other inventories " + inventories[i].inventory.getAll()
+        mSInfo.textContent = "Inventory "+ inventories[i].inventory.getLocation() + " sends its information conatenated to all the other inventories " + longestChain + inventories[i].inventory.getAll() +
+        " (the first number represent the number of records added to the blockchain plus one, a tally to prevent duplicate entries)"
         mSInfo2.textContent = "The other inventories use it to sign and verify"
         
 
@@ -241,7 +228,7 @@ async function printInventoryDetails(inventories: {inventory: Inventory, signatu
         inventoriesSign?.appendChild(verificationDetails)
         
         let validated 
-    //FINISH ME SIGNATURE VALIDATION FOR EACH INVENTORY
+    //SIGNATURE VALIDATION FOR EACH INVENTORY
         for (let l = 0; l< inventories.length; l++) {
 
             let verificationList = document.createElement("ol")
@@ -264,20 +251,8 @@ async function printInventoryDetails(inventories: {inventory: Inventory, signatu
             if (inventories[l].signature.sigValidation(PKG.getIDs(), PKG.getAggregateT())){
                 confirmation.textContent = "Inventory " + inventories[l].inventory.getLocation() + " successfully validated. Inventory " + 
                 inventories[l].inventory.getLocation() + " adds the record to their blockchain"
-
                 
-
-                console.log("inventory: " + inventories[l].inventory.getLocation() + " chain length is " + inventories[l].blockchain.chain.length)
                 inventories[l].blockchain.addBlock(new Block(longestChain, inventories[i].inventory.getAll()))
-
-                console.log("inventory: " +inventories[l].inventory.getLocation() + " places into its block chain " + longestChain + inventories[i].inventory.getAll())
-                console.log("inventory: " + inventories[l].inventory.getLocation() + "s blockchain is updated")
-                
-                console.log("Values of each block in the chain at this point: ")
-
-                inventories[l].blockchain.printChain()
-
-                
 
             }
             else {
@@ -360,8 +335,10 @@ async function printSingleProcess(inventories: {inventory: Inventory, signature:
         let messageSigning = document.createElement("ol")
         let mSInfo = document.createElement("li")
         let mSInfo2 = document.createElement("li")
+        
 
-        mSInfo.textContent = "Inventory "+ updatedInv.inventory.getLocation() + " sends its information conatenated to all the other inventories " + updatedInv.inventory.getAll()
+        mSInfo.textContent = "Inventory "+ updatedInv.inventory.getLocation() + " sends its information conatenated to all the other inventories " +  longestChain +updatedInv.inventory.getAll() + 
+        " (the first number represents the number of records added to the blockchain plus one, a tally to prevent duplicate entries)"
         mSInfo2.textContent = "The other inventories use it to sign and verify"
         
 
@@ -390,7 +367,7 @@ async function printSingleProcess(inventories: {inventory: Inventory, signature:
                 " calculates g * r ^ H(t,m) mod(n)"
 
             
-                let signedMessage = await inventories[j].signature.signMessage(longestChain+ updatedInv.inventory.getAll(), tAggregate)
+                let signedMessage = await inventories[j].signature.signMessage(longestChain + updatedInv.inventory.getAll(), tAggregate)
                 
                 signatures.push(signedMessage)
 
@@ -466,14 +443,14 @@ async function printSingleProcess(inventories: {inventory: Inventory, signature:
             //Concensus & validation, all inventories must have signed for the sig validation to return true, hence it is added.
             //as for consensus will still need to implement POW to ensure that everyone has the same chain
             if (inventories[l].signature.sigValidation(PKG.getIDs(), PKG.getAggregateT())){
-                confirmation.textContent = "Inventory " + inventories[l].inventory.getLocation() + " successfully validated and reached consensus. Inventory " + 
+                confirmation.textContent = "Inventory " + inventories[l].inventory.getLocation() + " successfully validated. Inventory " + 
                 inventories[l].inventory.getLocation() + " adds the record to their blockchain"
 
-                console.log("inventory: " + inventories[l].inventory.getLocation() + " chain length is " + inventories[l].blockchain.chain[inventories[l].blockchain.chain.length - 1])
+                
 
                 console.log("inventory: " + inventories[l].inventory.getLocation() + "s blockchain is updated")
                 inventories[l].blockchain.addBlock(new Block(longestChain, updatedInv.inventory.getAll()))
-                console.log("inventory: " + inventories[l].inventory.getLocation() + "s length of chain is " + inventories[l].blockchain.chain.length)
+                
 
             }
             else {
@@ -541,8 +518,108 @@ function findLongestChain(blockchains: Blockchain[]): Blockchain {
     }, blockchains[0]);  
 }
 
-    
 
+async function searchAndSign(inventories: {inventory: Inventory, signature: IdentityDigitalSignature, blockchain: Blockchain} [], 
+    query: string, id: number): Promise <bigint> {
+        // Each inventory searches through their block chain to look for the search quer
+        let dataFound: boolean
+        let sigs: bigint[] = []
+
+        let searchDiv = document.createElement("div")
+            let searchOl = document.createElement("ol")
+            let liSearch = document.createElement("li")
+            let liSearch2 = document.createElement("li")
+
+            searchOl.innerHTML = "<strong>Your Search</strong>"
+            liSearch.textContent = "Your query concatenated as a string: " + query
+            liSearch2.textContent = "Each inventory searches their block chain for the data"
+            
+            searchOl.appendChild(liSearch)
+            searchOl.appendChild(liSearch2)
+            searchDiv.appendChild(searchOl)
+
+
+            for (const inventory of inventories) {
+                dataFound = false;
+            
+                // Searches through blockchain
+                for (let i = 0; i < inventory.blockchain.chain.length; i++) {
+                    if (inventory.blockchain.chain[i].data === query && id === inventory.blockchain.chain[i].index) {
+                        dataFound = true;
+                        let liSearch3 = document.createElement("li");
+                        liSearch3.textContent = "Inventory " + inventory.inventory.getLocation() + " has found your query!";
+                        searchOl.appendChild(liSearch3);
+
+                        break;
+                    }
+                }
+            
+                // Signs the result of the search with the message
+                
+                let sig = await inventory.signature.signMessage(dataFound.toString() + query, PKG.getAggregateT());
+                
+                sigs.push(sig);
+            }
+
+            
+            
+
+        let liSearch4 = document.createElement("li")
+        liSearch4.textContent = "Each inventory then signs the hash(t, dataFound + data)"
+        searchOl.appendChild(liSearch)
+
+        let multiSig = inventories[0].signature.findMultiSig(sigs);
+
+        let liSearch5 = document.createElement("li")
+        let liSearch6 = document.createElement("li")
+        let liSearch7 = document.createElement("li")
+        let liSearch8 = document.createElement("li")
+
+        liSearch5.textContent = "The computed multi signature is: " + multiSig
+
+
+            // Compute first value of multi signature verification
+        let firstVal = modPow(multiSig, PKG.getE(), PKG.getN())
+
+        liSearch6.textContent = "The computed first value is: " + firstVal
+
+        let ids = PKG.getIDs()
+        let idProduct:bigint = BigInt(1)
+        // CHECK HOW BOOLEAN CONVERTS TO STRING
+        let hashTM = inventories[0].signature.stringToMD5BigInt( PKG.getAggregateT()+"true" + query)
+
+            ids.forEach(id => {
+                idProduct = idProduct * BigInt(id)         
+            });
+
+        let secondVal = (idProduct % PKG.getN()) * modPow(PKG.getAggregateT(), hashTM, PKG.getN()) % PKG.getN();
+
+        liSearch7.textContent = "The computed second value is: " + secondVal
+
+        
+        // True if record exists in all blockchains
+        if (firstVal === secondVal) {
+            console.log(true)
+            liSearch8.textContent = "Your query exists"
+        }
+        else {
+            console.log(false)
+            liSearch8.textContent = "Your does not query exist"
+        }
+
+
+        searchOl.appendChild(liSearch5)
+        searchOl.appendChild(liSearch6)
+        searchOl.appendChild(liSearch7)
+        searchOl.appendChild(liSearch8)
+
+        let scenario = document.getElementById("scenario")
+
+        scenario?.appendChild(searchDiv)
+        // Multi Signature component 
+        return inventories[0].signature.findMultiSig(sigs);
+    
+    }
 
 
 //html
@@ -620,114 +697,130 @@ console.log("Script (main) is running");
  // 4. compute aggregate t value & pass to all inventories
 printInventoryDetails(inventories).catch(err => console.error(err));
 
-// printProcess(inventories)
 
+// Creates and appends input fields for form
+function createInputElement(name: string, placeholder: string, type: string): HTMLInputElement {
+    const input = document.createElement("input");
+    input.name = name;
+    input.placeholder = placeholder;
+    input.type = type;
+    return input;
+}
 
+// Creates and appends dropdown options for inventory
+function createInventorySelect(inventories: any[], label: string): HTMLSelectElement {
+    const select = document.createElement("select");
+    select.name = "Location";
 
+    const placeholderOption = document.createElement("option");
+    placeholderOption.value = "";
+    placeholderOption.disabled = true;
+    placeholderOption.selected = true;
+    placeholderOption.textContent = label;
+    select.appendChild(placeholderOption);
 
+    inventories.forEach((name) => {
+        const option = document.createElement("option");
+        option.value = name.inventory.getLocation();
+        option.textContent = name.inventory.getLocation();
+        select.appendChild(option);
+    });
 
-// //user input fields
-let userInput = document.getElementById("userInput") as HTMLElement;
-let form = document.createElement("form");
+    return select;
+}
 
-let idInput = document.createElement("input");
-idInput.name = "ID";
-idInput.placeholder = "Enter ID";
+// Creates a button element
+function createButton(text: string, type: string = "submit"): HTMLButtonElement {
+    const button = document.createElement("button");
+    button.type = "submit";
+    button.textContent = text;
+    return button;
+}
 
-let quantityInput = document.createElement("input");
-quantityInput.name = "Quantity";
-quantityInput.placeholder = "Enter Quantity";
-quantityInput.type = "number";
+// Appends input elements and button to form
+function appendFormElements(form: HTMLFormElement, elements: HTMLElement[]): void {
+    elements.forEach((element) => form.appendChild(element));
+}
 
-let priceInput = document.createElement("input");
-priceInput.name = "Price";
-priceInput.placeholder = "Enter Price";
-priceInput.type = "number";
+// When submit is clicked
+async function handleAddRecordSubmit(event: Event, inventories: any[]): Promise<void> {
+    event.preventDefault();
 
-let labelLocations = document.createElement("Label")
-labelLocations.textContent = "Location/Name"
-let locationInput = document.createElement("select");
-locationInput.name = "Location";
-
-
-const placeholderOption = document.createElement("option");
-placeholderOption.value = "";
-placeholderOption.disabled = true;
-placeholderOption.selected = true;
-placeholderOption.textContent = "Select an inventory";
-locationInput.appendChild(placeholderOption);
-
-// Create and the inventory options
-inventories.forEach(name => {
-    const option = document.createElement("option");
-    option.value = name.inventory.getLocation()
-    option.textContent = name.inventory.getLocation();
-    locationInput.appendChild(option);
-});
-
-
-let submitButton = document.createElement("button");
-submitButton.type = "submit";
-submitButton.textContent = "Submit";
-
-// form.appendChild(idInput);
-form.appendChild(quantityInput);
-form.appendChild(priceInput);
-form.appendChild(locationInput);
-form.appendChild(submitButton);
-
-
-userInput.appendChild(form);
-
-// Listen for form submission
-form.addEventListener("submit", async (event) => {
-    event.preventDefault();  
-    
-    // Retrieve values from the input fields
-    
-    let quantity: number = parseFloat(quantityInput.value)
-    let price: number = parseFloat(priceInput.value)
-    let location = locationInput.value;
-
-    
+    const quantity = parseFloat(quantityInput.value);
+    const price = parseFloat(priceInput.value);
+    const location = locationInput.value;
 
     if (isNaN(quantity) || isNaN(price)) {
         alert("Please enter a valid number for Quantity and Price.");
-        return; 
+        return;
     }
 
-    
     if (location === "") {
         alert("Please fill in all fields.");
-        return; 
+        return;
     }
 
-
-    let updatedInv: {inventory: Inventory, signature: IdentityDigitalSignature, blockchain: Blockchain }
-    for(let i = 0; i < inventories.length; i++) {
-        if(location === inventories[i].inventory.getLocation()){
-
-            inventories[i].inventory.updatePrice(price)
-            inventories[i].inventory.updateQuantity(quantity)
-            updatedInv = inventories[i]
-
-            
+    let updatedInv: { inventory: Inventory; signature: IdentityDigitalSignature; blockchain: Blockchain };
+    for (let i = 0; i < inventories.length; i++) {
+        if (location === inventories[i].inventory.getLocation()) {
+            inventories[i].inventory.updatePrice(price);
+            inventories[i].inventory.updateQuantity(quantity);
+            updatedInv = inventories[i];
+            break;
         }
     }
 
+    await new Promise<void>((resolve) => setTimeout(resolve, 5000)); 
 
-    await new Promise<void>(resolve => setTimeout(resolve, 5000)); 
-    // wait for initialization to complete
-
-    
     inventoryDiv.innerHTML = "";
+    printSingleProcess(inventories, updatedInv!);
+    console.log("Length of inventory A's chain: " + inventories[3].blockchain.chain.length + " (including genesis block)");
+}
 
+// When search is clicked
+async function handleSearchRecordSubmit(event: Event): Promise<void> {
+    event.preventDefault();
 
-    // printInventoryDetails(inventories)
     
-    printSingleProcess(inventories, updatedInv!)
 
-    console.log("Length of inventory A's chain: " + inventories[3].blockchain.chain.length + " (including genesis block)")
+    const id = parseFloat(idInput.value)
+    const quantity = parseFloat(quantitySearch.value).toString()
+    const price = parseFloat(priceSearch.value).toString()
+    const location = locationSearch.value
 
-   
-});
+    if (location === "") {
+        alert("Please fill in all fields.");
+        return;
+    }
+    let formattedQuery:string = quantity + price + location;
+    let multiSig: bigint = await searchAndSign(inventories, formattedQuery, id);
+
+}
+
+// Creates and appends forms 
+const userInput = document.getElementById("userInput") as HTMLElement;
+
+// Add record form
+const form = document.createElement("form");
+form.innerHTML = "<strong>Add a record: </strong>";
+const quantityInput = createInputElement("Quantity", "Enter Quantity", "number");
+const priceInput = createInputElement("Price", "Enter Price", "number");
+const locationInput = createInventorySelect(inventories, "Select an inventory");
+const submitButton = createButton("Submit");
+
+appendFormElements(form, [quantityInput, priceInput, locationInput, submitButton]);
+userInput.appendChild(form);
+form.addEventListener("submit", (event) => handleAddRecordSubmit(event, inventories));
+
+// Search form
+const searchForm = document.createElement("form");
+searchForm.innerHTML = "<strong>Search for a record: </strong>";
+const idInput = createInputElement("ID", "Enter ID (entry tally)", "number");
+const quantitySearch = createInputElement("Quantity", "Enter Quantity", "number");
+const priceSearch = createInputElement("Price", "Enter Price", "number");
+const locationSearch = createInventorySelect(inventories, "Select an inventory");
+const submitSearch = createButton("Search");
+
+appendFormElements(searchForm, [idInput, quantitySearch, priceSearch, locationSearch, submitSearch]);
+userInput.appendChild(searchForm);
+searchForm.addEventListener("submit", handleSearchRecordSubmit);

@@ -21,8 +21,8 @@ export class Inventory {
     }
     getAll() {
         // combine all to hashable string
-        let formattedId = this.id.toString().padStart(3, '0');
-        return formattedId + this.quantity + this.price + this.location;
+        let info = "";
+        return info + this.quantity + this.price + this.location;
     }
     // Setters
     updateId(id) {

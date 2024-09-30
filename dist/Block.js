@@ -7,12 +7,6 @@ export class Block {
         this.data = data;
         this.previousHash = previousHash;
         this.hash = this.createHash();
-        console.log("new blockn created with: ");
-        console.log(`Block ${index}:`);
-        console.log(`  Index: ${index}`);
-        console.log(`  Data: ${data}`);
-        console.log(`  Previous Hash: ${previousHash}`);
-        console.log();
     }
     createHash() {
         //creates a hash of the block
