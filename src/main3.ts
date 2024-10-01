@@ -529,26 +529,40 @@ async function searchAndSign(inventories: {inventory: Inventory, signature: Iden
             let searchOl = document.createElement("ol")
             let liSearch = document.createElement("li")
             let liSearch2 = document.createElement("li")
+            let liSearch3 = document.createElement("li");
+            
 
             searchOl.innerHTML = "<strong>Your Search</strong>"
             liSearch.textContent = "Your query concatenated as a string: " + query
             liSearch2.textContent = "Each inventory searches their block chain for the data"
             
+           
+
+
             searchOl.appendChild(liSearch)
             searchOl.appendChild(liSearch2)
+            searchOl.appendChild(liSearch3)
             searchDiv.appendChild(searchOl)
+
 
 
             for (const inventory of inventories) {
                 dataFound = false;
-            
+
+                let liSearch9 = document.createElement("li");
+                let liSearch10 = document.createElement("li");
+
+                liSearch9.textContent = "Inventory " + inventory.inventory.getLocation() + " searches through their block chain for your query"
+                liSearch10.textContent = "They then append the result of the search with the mesage in the signing function g * r ^ H(t,m & searchResult) mod(n)"
+
+                searchOl.appendChild(liSearch9)
+
                 // Searches through blockchain
                 for (let i = 0; i < inventory.blockchain.chain.length; i++) {
                     if (inventory.blockchain.chain[i].data === query && id === inventory.blockchain.chain[i].index) {
                         dataFound = true;
-                        let liSearch3 = document.createElement("li");
-                        liSearch3.textContent = "Inventory " + inventory.inventory.getLocation() + " has found your query!";
-                        searchOl.appendChild(liSearch3);
+                        
+                        
 
                         break;
                     }
@@ -565,8 +579,8 @@ async function searchAndSign(inventories: {inventory: Inventory, signature: Iden
             
 
         let liSearch4 = document.createElement("li")
-        liSearch4.textContent = "Each inventory then signs the hash(t, dataFound + data)"
-        searchOl.appendChild(liSearch)
+        liSearch4.textContent = "These signatures are combined using the multi signature function (s1 * s2 * s3 *s4) mod n = mSig"
+        searchOl.appendChild(liSearch4)
 
         let multiSig = inventories[0].signature.findMultiSig(sigs);
 
@@ -574,8 +588,12 @@ async function searchAndSign(inventories: {inventory: Inventory, signature: Iden
         let liSearch6 = document.createElement("li")
         let liSearch7 = document.createElement("li")
         let liSearch8 = document.createElement("li")
-
+        let liSearch11 = document.createElement("li")
+        let liSearch12 = document.createElement("li")
+        
         liSearch5.textContent = "The computed multi signature is: " + multiSig
+
+        liSearch11.textContent = "The client then calculates multiSig^e mod n = x and (i1 * i2 * i3 * i4) * t ^H(t,m) mod n"
 
 
             // Compute first value of multi signature verification
